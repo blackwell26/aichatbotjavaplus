@@ -9,10 +9,10 @@ Derived from:
 
 ## 1. Project Foundation
 
-- [ ] Select Maven or Gradle as the standard Java build tool.
-- [ ] Initialize a Java 21 Spring Boot 3.x backend project.
-- [ ] Configure package root, for example `com.company.chatbot`.
-- [ ] Create base packages for `api`, `api.dto`, `auth`, `chat`, `intent`, `rag`, `ai`, `knowledge`, `ecommerce`, `escalation`, `recommendation`, `notification`, `analytics`, `persistence`, `messaging`, `observability`, `config`, and `common`.
+- [x] Select Maven as the standard Java build tool.
+- [x] Initialize a Java 21 Spring Boot 3.x backend project.
+- [x] Configure package root, `com.company.chatbot`.
+- [x] Create base packages for `api`, `api.dto`, `auth`, `chat`, `intent`, `rag`, `ai`, `knowledge`, `ecommerce`, `escalation`, `recommendation`, `notification`, `analytics`, `persistence`, `messaging`, `observability`, `config`, and `common`.
 - [ ] Add Spring Boot starters for Web, Validation, Security, WebSocket, Actuator, Data JPA, MongoDB, Redis, and Kafka.
 - [ ] Add Spring AI Ollama dependency.
 - [ ] Decide whether LangChain4j is required for first release.
