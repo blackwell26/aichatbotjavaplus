@@ -1,11 +1,13 @@
 app:
   environment: dev
 
-# Development configuration: point to dev services (examples)
+# Development configuration: point to dev services
 spring:
   datasource:
     url: jdbc:postgresql://postgres-dev:5432/aichatbot_dev
+    driver-class-name: org.postgresql.Driver
     username: aichatbot
+    password: ${DB_PASSWORD_DEV:changeme}
   data:
     mongodb:
       uri: mongodb://mongodb-dev:27017/aichatbot_dev
@@ -14,11 +16,32 @@ spring:
     port: 6379
   kafka:
     bootstrap-servers: kafka-dev:9092
-
-# Ollama dev runtime
-spring:
+  # Spring AI Ollama configuration for dev
   ai:
     ollama:
       url: "http://ollama-dev:11434"
       model: "llama3"
+      timeout: 15s
+      embedding-model: "nomic-embed-text"
+  # Enable Flyway migrations for dev environment
+  flyway:
+    enabled: true
 
+# Security: JWT configuration for dev (still weak, rotated frequently)
+security:
+  jwt:
+    secret: ${JWT_SECRET_DEV:dev-secret-rotate-regularly}
+    expiration: 7200
+    refresh-expiration: 604800
+    issuer: aichatbot-dev
+    audience: aichatbot-users
+
+# RAG: Retrieval-Augmented Generation for dev
+rag:
+  retrieval:
+    enabled: true
+    top-k: 5
+    similarity-threshold: 0.5
+    chunk-size: 500
+    chunk-overlap: 100
+    vector-db: pgvector

@@ -1,11 +1,13 @@
 app:
   environment: test
 
-# Test configuration: usually used by CI and integration tests. Use Testcontainers or stub services.
+# Test configuration: for CI and integration tests using Testcontainers or test containers
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/aichatbot_test
+    driver-class-name: org.postgresql.Driver
     username: aichatbot
+    password: changeme
   data:
     mongodb:
       uri: mongodb://localhost:27017/aichatbot_test
@@ -14,9 +16,32 @@ spring:
     port: 6379
   kafka:
     bootstrap-servers: localhost:9092
+  # Spring AI Ollama configuration for tests (use mock or stub service)
+  ai:
+    ollama:
+      url: "http://localhost:11434"
+      model: "llama3"
+      timeout: 5s
+      embedding-model: "nomic-embed-text"
+  # Enable Flyway for test database setup
+  flyway:
+    enabled: true
 
-# Reduce timeouts and use deterministic settings in tests
-ai:
-  default-timeout-seconds: 3
-  max-prompt-tokens: 1000
+# Security: JWT configuration for tests (use fixed test values)
+security:
+  jwt:
+    secret: test-secret-fixed-for-tests
+    expiration: 3600
+    refresh-expiration: 604800
+    issuer: aichatbot-test
+    audience: aichatbot-users
 
+# RAG: Retrieval-Augmented Generation for tests (minimal settings)
+rag:
+  retrieval:
+    enabled: true
+    top-k: 3
+    similarity-threshold: 0.5
+    chunk-size: 500
+    chunk-overlap: 100
+    vector-db: pgvector

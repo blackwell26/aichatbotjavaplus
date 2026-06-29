@@ -26,9 +26,9 @@ Derived from:
 - [x] Create `application-dev.yml`.
 - [x] Create `application-test.yml`.
 - [x] Create `application-prod.yml`.
-- [ ] Define configuration groups for `security.jwt`.
-- [ ] Define configuration groups for `spring.ai.ollama`.
-- [ ] Define configuration groups for `rag.retrieval`.
+- [x] Define configuration groups for `security.jwt`.
+- [x] Define configuration groups for `spring.ai.ollama`.
+- [x] Define configuration groups for `rag.retrieval`.
 - [ ] Define configuration groups for product, order, payment, shipping, and CRM service integrations.
 - [ ] Define configuration groups for PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ.
 - [ ] Define configuration groups for observability and feature flags.

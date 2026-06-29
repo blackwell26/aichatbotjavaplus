@@ -17,5 +17,36 @@ management:
       exposure:
         include: health,info,prometheus
 
+# Configuration groups
+# These are placeholder definitions; values are set per profile in application-{profile}.yml
+
+# Security: JWT token configuration
+security:
+  jwt:
+    secret: ${JWT_SECRET:changeme-dev-only}
+    expiration: ${JWT_EXPIRATION:3600}  # 1 hour in seconds
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}  # 7 days in seconds
+    issuer: ${JWT_ISSUER:aichatbot}
+    audience: ${JWT_AUDIENCE:aichatbot-users}
+
+# Spring AI: Ollama model configuration
+spring:
+  ai:
+    ollama:
+      url: ${OLLAMA_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:llama2}
+      timeout: ${OLLAMA_TIMEOUT:30s}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+
+# RAG: Retrieval-Augmented Generation configuration
+rag:
+  retrieval:
+    enabled: ${RAG_ENABLED:true}
+    top-k: ${RAG_TOP_K:5}  # Number of documents to retrieve
+    similarity-threshold: ${RAG_SIMILARITY_THRESHOLD:0.5}  # Min similarity score
+    chunk-size: ${RAG_CHUNK_SIZE:500}  # Characters per chunk
+    chunk-overlap: ${RAG_CHUNK_OVERLAP:100}  # Overlap between chunks
+    vector-db: ${RAG_VECTOR_DB:pgvector}  # pgvector, milvus, pinecone, etc.
+
 # Note: sensitive values (DB passwords, API keys) must be provided via environment variables or external secret manager; do not commit secrets to source control.
 

@@ -1,32 +1,66 @@
 app:
   environment: prod
 
-# Production configuration must be provided via externalized configuration (secrets manager, environment variables, or Kubernetes secrets)
+# Production configuration must be provided via externalized configuration
+# Use secrets manager, environment variables, or Kubernetes secrets
 spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/aichatbot}
-    username: ${DATABASE_USERNAME:}
-    password: ${DATABASE_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   data:
     mongodb:
-      uri: ${MONGODB_URI:}
+      uri: ${MONGODB_URI}
   redis:
-    host: ${REDIS_HOST:}
+    host: ${REDIS_HOST}
     port: ${REDIS_PORT:6379}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
-
-spring:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+  # Spring AI Ollama configuration for production
   ai:
     ollama:
       url: ${OLLAMA_URL:http://ollama:11434}
       model: ${OLLAMA_MODEL:llama3}
+      timeout: ${OLLAMA_TIMEOUT:30s}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+  # Enable Flyway migrations for production
+  flyway:
+    enabled: true
 
+# Security: JWT configuration for production (must use strong secrets from vault/secrets manager)
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration: ${JWT_EXPIRATION:3600}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}
+    issuer: ${JWT_ISSUER:aichatbot}
+    audience: ${JWT_AUDIENCE:aichatbot-users}
+
+# RAG: Retrieval-Augmented Generation for production
+rag:
+  retrieval:
+    enabled: ${RAG_ENABLED:true}
+    top-k: ${RAG_TOP_K:5}
+    similarity-threshold: ${RAG_SIMILARITY_THRESHOLD:0.5}
+    chunk-size: ${RAG_CHUNK_SIZE:500}
+    chunk-overlap: ${RAG_CHUNK_OVERLAP:100}
+    vector-db: ${RAG_VECTOR_DB:pgvector}
+
+# Production observability: expose minimal endpoints
 management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
 
-# Ensure production-ready settings: TLS, resource limits, and monitoring are configured externally.
-
+# Ensure production-ready settings: TLS, resource limits, and monitoring configured externally.
+# Required environment variables for production (see docs for full list):
+# DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD
+# MONGODB_URI, REDIS_HOST, REDIS_PORT, KAFKA_BOOTSTRAP_SERVERS
+# OLLAMA_URL, OLLAMA_MODEL, OLLAMA_TIMEOUT, OLLAMA_EMBEDDING_MODEL
+# JWT_SECRET, JWT_EXPIRATION, JWT_REFRESH_EXPIRATION, JWT_ISSUER, JWT_AUDIENCE
+# RAG_ENABLED, RAG_TOP_K, RAG_SIMILARITY_THRESHOLD, RAG_CHUNK_SIZE, RAG_CHUNK_OVERLAP, RAG_VECTOR_DB

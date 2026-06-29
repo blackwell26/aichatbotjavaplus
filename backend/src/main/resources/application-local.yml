@@ -1,7 +1,7 @@
 app:
   environment: local
 
-# Local development datasource (Postgres), MongoDB, Redis, and Kafka placeholders
+# Local development datasource (Postgres), MongoDB, Redis, and Kafka
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/aichatbot_local
@@ -16,15 +16,35 @@ spring:
     port: 6379
   kafka:
     bootstrap-servers: localhost:9092
-  # Spring AI Ollama configuration (example)
+  # Spring AI Ollama configuration (local development)
   ai:
     ollama:
-      url: "http://localhost:11434" # Ollama server URL
-      model: "llama3"               # configured model name
+      url: "http://localhost:11434"
+      model: "llama3"
       timeout: 10s
-  # Flyway: disable auto-migrate in local dev; migrations applied externally via Flyway CLI/container
+      embedding-model: "nomic-embed-text"
+  # Flyway: disable auto-migrate in local dev; migrations applied externally
   flyway:
     enabled: false
+
+# Security: JWT configuration for local development (use weak secrets for dev only)
+security:
+  jwt:
+    secret: local-dev-secret-change-in-prod
+    expiration: 3600
+    refresh-expiration: 604800
+    issuer: aichatbot-local
+    audience: aichatbot-users
+
+# RAG: Retrieval-Augmented Generation for local development
+rag:
+  retrieval:
+    enabled: true
+    top-k: 5
+    similarity-threshold: 0.5
+    chunk-size: 500
+    chunk-overlap: 100
+    vector-db: pgvector
 
 # Observability and metrics for local development
 management:
@@ -32,8 +52,3 @@ management:
     web:
       exposure:
         include: health,info,prometheus
-
-# Optional AI tuning
-ai:
-  max-prompt-tokens: 4000
-  default-timeout-seconds: 10
