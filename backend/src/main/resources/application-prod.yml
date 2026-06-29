@@ -1,3 +1,32 @@
 app:
   environment: prod
 
+# Production configuration must be provided via externalized configuration (secrets manager, environment variables, or Kubernetes secrets)
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/aichatbot}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:}
+  redis:
+    host: ${REDIS_HOST:}
+    port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:}
+
+spring:
+  ai:
+    ollama:
+      url: ${OLLAMA_URL:http://ollama:11434}
+      model: ${OLLAMA_MODEL:llama3}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Ensure production-ready settings: TLS, resource limits, and monitoring are configured externally.
+

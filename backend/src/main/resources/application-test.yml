@@ -1,3 +1,22 @@
 app:
   environment: test
 
+# Test configuration: usually used by CI and integration tests. Use Testcontainers or stub services.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aichatbot_test
+    username: aichatbot
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/aichatbot_test
+  redis:
+    host: localhost
+    port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+
+# Reduce timeouts and use deterministic settings in tests
+ai:
+  default-timeout-seconds: 3
+  max-prompt-tokens: 1000
+

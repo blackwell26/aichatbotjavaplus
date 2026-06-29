@@ -1,15 +1,36 @@
 app:
   environment: local
 
-# Spring AI Ollama configuration (example)
+# Local development datasource (Postgres), MongoDB, Redis, and Kafka placeholders
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aichatbot_local
+    username: aichatbot
+    password: changeme
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/aichatbot_local
+  redis:
+    host: localhost
+    port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+
+# Spring AI Ollama configuration (example)
   ai:
     ollama:
       url: "http://localhost:11434" # Ollama server URL
       model: "llama3"               # configured model name
       timeout: 10s
 
-# Optional observability settings for AI
+# Observability and metrics for local development
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Optional AI tuning
 ai:
   max-prompt-tokens: 4000
   default-timeout-seconds: 10

@@ -4,3 +4,15 @@ spring:
   profiles:
     default: local
 
+# Common server and management defaults
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Note: sensitive values (DB passwords, API keys) must be provided via environment variables or external secret manager; do not commit secrets to source control.
+
