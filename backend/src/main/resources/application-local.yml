@@ -5,6 +5,7 @@ app:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/aichatbot_local
+    driver-class-name: org.postgresql.Driver
     username: aichatbot
     password: changeme
   data:
