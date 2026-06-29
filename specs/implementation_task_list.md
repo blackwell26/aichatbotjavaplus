@@ -22,10 +22,10 @@ Derived from:
 
 ## 2. Backend Configuration
 
-- [ ] Create `application-local.yml`.
-- [ ] Create `application-dev.yml`.
-- [ ] Create `application-test.yml`.
-- [ ] Create `application-prod.yml`.
+- [x] Create `application-local.yml`.
+- [x] Create `application-dev.yml`.
+- [x] Create `application-test.yml`.
+- [x] Create `application-prod.yml`.
 - [ ] Define configuration groups for `security.jwt`.
 - [ ] Define configuration groups for `spring.ai.ollama`.
 - [ ] Define configuration groups for `rag.retrieval`.
