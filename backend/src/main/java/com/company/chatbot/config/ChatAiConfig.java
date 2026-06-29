@@ -1,20 +1,5 @@
 package com.company.chatbot.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.ai.chat.client.ChatClient;
-
-/**
- * Example Spring AI ChatClient configuration using the Ollama provider.
- * Uses the auto-configured ChatClient.Builder provided by Spring AI when the
- * spring-ai-autoconfigure-model-ollama dependency is on the classpath.
- */
-@Configuration
-public class ChatAiConfig {
-
-    @Bean
-    public ChatClient chatClient(ChatClient.Builder builder) {
-        // Build a ChatClient using defaults from configuration (application-*.yml)
-        return builder.build();
-    }
-}
+// ChatAiConfig removed: relying on Spring AI auto-configuration for ChatClient.
+// If explicit ChatClient bean is required later, reintroduce a provider here
+// that matches the Spring AI version in project dependencies.

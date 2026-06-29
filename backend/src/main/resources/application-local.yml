@@ -16,13 +16,15 @@ spring:
     port: 6379
   kafka:
     bootstrap-servers: localhost:9092
-
-# Spring AI Ollama configuration (example)
+  # Spring AI Ollama configuration (example)
   ai:
     ollama:
       url: "http://localhost:11434" # Ollama server URL
       model: "llama3"               # configured model name
       timeout: 10s
+  # Flyway: disable auto-migrate in local dev; migrations applied externally via Flyway CLI/container
+  flyway:
+    enabled: false
 
 # Observability and metrics for local development
 management:
@@ -31,13 +33,7 @@ management:
       exposure:
         include: health,info,prometheus
 
-# Disable Spring Boot auto Flyway migration in local dev; migrations applied externally via Flyway CLI/container
-spring:
-  flyway:
-    enabled: false
-
 # Optional AI tuning
 ai:
   max-prompt-tokens: 4000
   default-timeout-seconds: 10
-
