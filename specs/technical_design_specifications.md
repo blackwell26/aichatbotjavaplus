@@ -675,7 +675,7 @@ Gatling or k6
 The following items should be finalized before implementation:
 
 1. Maven or Gradle as the standard build tool.
-2. Whether Spring AI alone is sufficient or LangChain4j is needed for chain orchestration.
+2. Whether Spring AI alone is sufficient or LangChain4j is needed for chain orchestration. — Decision: Use Spring AI (Ollama provider) for the first release. LangChain4j is not required initially and may be introduced in a later release if advanced chain orchestration or complex tool-calling becomes necessary.
 3. Whether pgvector is the initial vector store or a dedicated vector database is required.
 4. Kafka or RabbitMQ as the first supported production broker.
 5. Exact JWT issuer and identity provider.
