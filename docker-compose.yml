@@ -66,6 +66,9 @@ services:
     ports:
       - "3000:3000"
 
+# prometheus http://192.168.1.87:9090
+# grafana userid=admin password=Bugatti$8 remote connection=192.168.1.87:3000
+
 # Note: Ollama does not currently provide an official Docker image in all environments.
 # If available in your environment, add an 'ollama' service here or run Ollama locally.
 
