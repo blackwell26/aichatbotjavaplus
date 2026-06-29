@@ -15,7 +15,7 @@ Derived from:
 - [x] Create base packages for `api`, `api.dto`, `auth`, `chat`, `intent`, `rag`, `ai`, `knowledge`, `ecommerce`, `escalation`, `recommendation`, `notification`, `analytics`, `persistence`, `messaging`, `observability`, `config`, and `common`.
 - [x] Add Spring Boot starters for Web, Validation, Security, WebSocket, Actuator, Data JPA, MongoDB, Redis, and Kafka.
 - [x] Add Spring AI Ollama dependency.
-- [ ] Decide whether LangChain4j is required for first release.
+- [x] Decide whether LangChain4j is required for first release. Decision: Not required for first release — use Spring AI (Ollama provider) for model and RAG orchestration. LangChain4j may be introduced in later releases if advanced chain orchestration or complex tool calling is needed.
 - [ ] Add Resilience4j, Flyway or Liquibase, OpenTelemetry/Micrometer, and test dependencies.
 - [ ] Configure application profiles: `local`, `dev`, `test`, and `prod`.
 - [ ] Add standard build, test, lint, and package commands to project documentation.
