@@ -17,7 +17,7 @@ Derived from:
 - [x] Add Spring AI Ollama dependency.
 - [x] Decide whether LangChain4j is required for first release. Decision: Not required for first release — use Spring AI (Ollama provider) for model and RAG orchestration. LangChain4j may be introduced in later releases if advanced chain orchestration or complex tool calling is needed.
 - [x] Add Resilience4j, Flyway or Liquibase, OpenTelemetry/Micrometer, and test dependencies.
-- [ ] Configure application profiles: `local`, `dev`, `test`, and `prod`.
+- [x] Configure application profiles: `local`, `dev`, `test`, and `prod`.
 - [ ] Add standard build, test, lint, and package commands to project documentation.
 
 ## 2. Backend Configuration
