@@ -45,3 +45,83 @@ rag:
     chunk-size: 500
     chunk-overlap: 100
     vector-db: pgvector
+
+# External Service Integrations for tests (all disabled or mocked)
+integrations:
+  product-service:
+    enabled: false
+    base-url: "http://localhost:9001"
+    timeout: 2s
+    api-key: "test-key"
+  order-service:
+    enabled: false
+    base-url: "http://localhost:9002"
+    timeout: 2s
+    api-key: "test-key"
+  payment-service:
+    enabled: false
+    base-url: "http://localhost:9003"
+    timeout: 2s
+    api-key: "test-key"
+  shipping-service:
+    enabled: false
+    base-url: "http://localhost:9004"
+    timeout: 2s
+    api-key: "test-key"
+  crm-service:
+    enabled: false
+    base-url: "http://localhost:9005"
+    timeout: 2s
+    api-key: "test-key"
+
+# Database and Messaging: Test settings (minimal pools for test isolation)
+datasources:
+  postgresql:
+    pool-size: 2
+    max-idle-time: 5m
+    connection-timeout: 10s
+  mongodb:
+    max-pool-size: 5
+    connection-timeout: 5s
+  redis:
+    timeout: 2s
+    pool-size: 2
+
+messaging:
+  kafka:
+    producer-timeout: 2s
+    consumer-timeout: 5s
+    batch-size: 8192
+    compression-type: gzip
+  rabbitmq:
+    enabled: false
+
+# Observability: Test (minimal, only errors logged)
+observability:
+  metrics:
+    enabled: false
+    include-jvm-metrics: false
+    include-system-metrics: false
+    histogram-percentiles: "0.5,0.95"
+  tracing:
+    enabled: false
+    sample-rate: 0.0
+    exporter: jaeger
+  logging:
+    level: WARN
+    include-request-headers: false
+    include-response-body: false
+  health-check:
+    include-database: true
+    include-cache: false
+    include-messaging: false
+
+# Feature Flags: Only core features for tests
+features:
+  rag-enabled: true
+  intent-classification: true
+  recommendations: false
+  sentiment-analysis: false
+  escalation-automation: false
+  multilingual-support: false
+  kb-auto-indexing: false

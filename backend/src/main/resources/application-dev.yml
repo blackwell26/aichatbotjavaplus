@@ -45,3 +45,83 @@ rag:
     chunk-size: 500
     chunk-overlap: 100
     vector-db: pgvector
+
+# External Service Integrations for dev environment
+integrations:
+  product-service:
+    enabled: true
+    base-url: "http://product-service-dev:9001"
+    timeout: 5s
+    api-key: ${PRODUCT_SERVICE_API_KEY_DEV:dev-key}
+  order-service:
+    enabled: true
+    base-url: "http://order-service-dev:9002"
+    timeout: 5s
+    api-key: ${ORDER_SERVICE_API_KEY_DEV:dev-key}
+  payment-service:
+    enabled: true
+    base-url: "http://payment-service-dev:9003"
+    timeout: 10s
+    api-key: ${PAYMENT_SERVICE_API_KEY_DEV:dev-key}
+  shipping-service:
+    enabled: true
+    base-url: "http://shipping-service-dev:9004"
+    timeout: 5s
+    api-key: ${SHIPPING_SERVICE_API_KEY_DEV:dev-key}
+  crm-service:
+    enabled: true
+    base-url: "http://crm-service-dev:9005"
+    timeout: 5s
+    api-key: ${CRM_SERVICE_API_KEY_DEV:dev-key}
+
+# Database and Messaging: Dev environment settings
+datasources:
+  postgresql:
+    pool-size: 10
+    max-idle-time: 30m
+    connection-timeout: 30s
+  mongodb:
+    max-pool-size: 25
+    connection-timeout: 10s
+  redis:
+    timeout: 5s
+    pool-size: 8
+
+messaging:
+  kafka:
+    producer-timeout: 10s
+    consumer-timeout: 30s
+    batch-size: 32768
+    compression-type: snappy
+  rabbitmq:
+    enabled: false
+
+# Observability: Dev environment (moderate logging, key metrics)
+observability:
+  metrics:
+    enabled: true
+    include-jvm-metrics: true
+    include-system-metrics: true
+    histogram-percentiles: "0.5,0.95,0.99"
+  tracing:
+    enabled: true
+    sample-rate: 0.5  # 50% sampling for dev
+    exporter: jaeger
+  logging:
+    level: INFO
+    include-request-headers: false
+    include-response-body: false
+  health-check:
+    include-database: true
+    include-cache: true
+    include-messaging: true
+
+# Feature Flags: Most features enabled in dev
+features:
+  rag-enabled: true
+  intent-classification: true
+  recommendations: true
+  sentiment-analysis: true
+  escalation-automation: false
+  multilingual-support: false
+  kb-auto-indexing: true

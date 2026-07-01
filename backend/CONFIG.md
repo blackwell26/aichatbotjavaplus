@@ -439,10 +439,279 @@ docker compose exec postgres psql -U aichatbot -d aichatbot_local \
 
 ---
 
-## Next Steps
+### 4. External Service Integrations
 
-See `specs/implementation_task_list.md` for remaining configuration tasks:
-- [ ] Task #2.8: Product, order, payment, shipping, and CRM service integrations
-- [ ] Task #2.9: PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ configuration groups
-- [ ] Task #2.10: Observability and feature flags configuration groups
-- [ ] Task #2.11: Document required environment variables and secret names
+**Group:** `integrations`
+
+Configuration for integrations with external e-commerce and business services.
+
+#### Properties
+
+```yaml
+integrations:
+  product-service:
+    enabled: ${PRODUCT_SERVICE_ENABLED:true}
+    base-url: ${PRODUCT_SERVICE_URL}
+    timeout: ${PRODUCT_SERVICE_TIMEOUT:5s}
+    api-key: ${PRODUCT_SERVICE_API_KEY}
+  order-service:
+    enabled: ${ORDER_SERVICE_ENABLED:true}
+    base-url: ${ORDER_SERVICE_URL}
+    timeout: ${ORDER_SERVICE_TIMEOUT:5s}
+    api-key: ${ORDER_SERVICE_API_KEY}
+  payment-service:
+    enabled: ${PAYMENT_SERVICE_ENABLED:true}
+    base-url: ${PAYMENT_SERVICE_URL}
+    timeout: ${PAYMENT_SERVICE_TIMEOUT:10s}
+    api-key: ${PAYMENT_SERVICE_API_KEY}
+  shipping-service:
+    enabled: ${SHIPPING_SERVICE_ENABLED:true}
+    base-url: ${SHIPPING_SERVICE_URL}
+    timeout: ${SHIPPING_SERVICE_TIMEOUT:5s}
+    api-key: ${SHIPPING_SERVICE_API_KEY}
+  crm-service:
+    enabled: ${CRM_SERVICE_ENABLED:true}
+    base-url: ${CRM_SERVICE_URL}
+    timeout: ${CRM_SERVICE_TIMEOUT:5s}
+    api-key: ${CRM_SERVICE_API_KEY}
+```
+
+#### Services
+
+| Service | Purpose | Typical URL | Timeout | API Key |
+|---------|---------|-------------|---------|---------|
+| product-service | Product catalog, inventory, search | `http://product-api:9001` | 5s | Product API key |
+| order-service | Order creation, history, status | `http://order-api:9002` | 5s | Order API key |
+| payment-service | Payment processing, refunds | `http://payment-api:9003` | 10s | Payment gateway key |
+| shipping-service | Shipping rates, tracking, labels | `http://shipping-api:9004` | 5s | Shipping API key |
+| crm-service | Customer profiles, history, preferences | `http://crm-api:9005` | 5s | CRM API key |
+
+#### Profile Defaults
+
+- **local**: All services enabled, localhost URLs, dev API keys
+- **dev**: All services enabled, internal URLs, dev API keys
+- **test**: All services disabled (use mocks)
+- **prod**: All from environment variables, URLs/keys required
+
+#### Usage
+
+Used by `ecommerce` package for:
+- Retrieving product information for recommendations
+- Creating/tracking orders during conversations
+- Processing payments for quick checkout
+- Getting shipping options and rates
+- Fetching customer profiles and preferences
+
+---
+
+### 5. Database & Messaging Configuration
+
+**Group:** `datasources` and `messaging`
+
+Connection pool and performance tuning for databases and message brokers.
+
+#### Datasources Properties
+
+```yaml
+datasources:
+  postgresql:
+    pool-size: ${DB_POOL_SIZE}           # Connection pool size
+    max-idle-time: ${DB_MAX_IDLE_TIME}   # Idle connection timeout
+    connection-timeout: ${DB_CONN_TIMEOUT} # Connection acquire timeout
+  mongodb:
+    max-pool-size: ${MONGO_MAX_POOL_SIZE}
+    connection-timeout: ${MONGO_CONN_TIMEOUT}
+  redis:
+    timeout: ${REDIS_TIMEOUT}
+    pool-size: ${REDIS_POOL_SIZE}
+```
+
+#### Messaging Properties
+
+```yaml
+messaging:
+  kafka:
+    producer-timeout: ${KAFKA_PRODUCER_TIMEOUT}
+    consumer-timeout: ${KAFKA_CONSUMER_TIMEOUT}
+    batch-size: ${KAFKA_BATCH_SIZE}
+    compression-type: ${KAFKA_COMPRESSION}
+  rabbitmq:
+    enabled: ${RABBITMQ_ENABLED}
+    connection-timeout: ${RABBITMQ_CONN_TIMEOUT}
+    request-timeout: ${RABBITMQ_REQUEST_TIMEOUT}
+```
+
+#### Profile Defaults
+
+| Property | Local | Dev | Test | Prod |
+|----------|-------|-----|------|------|
+| PostgreSQL pool-size | 5 | 10 | 2 | 30 |
+| MongoDB max-pool-size | 10 | 25 | 5 | 100 |
+| Redis pool-size | 4 | 8 | 2 | 16 |
+| Kafka batch-size | 16384 | 32768 | 8192 | 32768 |
+| Tracing sample-rate | 1.0 | 0.5 | 0.0 | 0.01 |
+
+#### Tuning Guidelines
+
+**PostgreSQL Pool**
+- Local/Dev: 5-10 connections (sufficient for single user)
+- Test: 2 connections (isolation)
+- Prod: 20-50 (depends on load, monitor with max connections)
+
+**MongoDB Pool**
+- Local: 10 (plenty for development)
+- Prod: 50-100 (one connection per expected concurrent request)
+
+**Kafka**
+- Batch Size: Larger batches = higher throughput, higher latency
+- Compression: `gzip` (better compression), `snappy` (faster)
+- Sample Rate: 0.01 (1%) for prod, 0.5 (50%) for staging, 1.0 (100%) for dev
+
+---
+
+### 6. Observability Configuration
+
+**Group:** `observability`
+
+Monitoring, tracing, logging, and health check configuration.
+
+#### Properties
+
+```yaml
+observability:
+  metrics:
+    enabled: ${METRICS_ENABLED:true}
+    include-jvm-metrics: ${INCLUDE_JVM_METRICS:true}
+    include-system-metrics: ${INCLUDE_SYSTEM_METRICS:true}
+    histogram-percentiles: ${HISTOGRAM_PERCENTILES:0.5,0.95,0.99}
+  tracing:
+    enabled: ${TRACING_ENABLED:true}
+    sample-rate: ${TRACE_SAMPLE_RATE:0.1}
+    exporter: ${TRACE_EXPORTER:jaeger}
+  logging:
+    level: ${LOG_LEVEL:INFO}
+    include-request-headers: ${LOG_REQUEST_HEADERS:false}
+    include-response-body: ${LOG_RESPONSE_BODY:false}
+  health-check:
+    include-database: ${HEALTH_CHECK_DB:true}
+    include-cache: ${HEALTH_CHECK_CACHE:true}
+    include-messaging: ${HEALTH_CHECK_MESSAGING:true}
+```
+
+#### Metrics
+
+**JVM Metrics** (enabled with `include-jvm-metrics: true`):
+- Memory (heap, non-heap, usage)
+- Thread count, peak threads
+- Garbage collection (count, time)
+- Class loading, unloading
+
+**System Metrics** (enabled with `include-system-metrics: true`):
+- CPU usage, load average
+- Process uptime
+- File descriptor count
+- Disk usage
+
+**Application Metrics**:
+- HTTP requests (count, latency, status)
+- Database operations (count, duration)
+- Message processing (count, latency)
+
+#### Tracing
+
+**Sample Rate**:
+- `1.0` (100%): All requests traced (development)
+- `0.5` (50%): Half traced (staging)
+- `0.1` (10%): Every 10th request
+- `0.01` (1%): Production (reduce overhead)
+
+**Exporters**:
+- `jaeger`: Distributed tracing with Jaeger backend
+- `otlp`: OpenTelemetry Protocol (for OpenTelemetry Collector)
+- `zipkin`: Zipkin tracing backend
+
+#### Logging Levels
+
+| Level | Usage | Output |
+|-------|-------|--------|
+| DEBUG | Development | All details, full stack traces |
+| INFO | Production | Major events, startup info |
+| WARN | Production | Warnings, potential issues |
+| ERROR | All | Errors, failures |
+
+#### Health Checks
+
+- `include-database`: Check PostgreSQL/MongoDB connectivity
+- `include-cache`: Check Redis connectivity
+- `include-messaging`: Check Kafka/RabbitMQ connectivity
+
+#### Profile Defaults
+
+- **local**: All enabled (DEBUG logging, 100% tracing, all metrics)
+- **dev**: Most enabled (INFO logging, 50% tracing)
+- **test**: Minimal (WARN logging, no tracing, no metrics)
+- **prod**: Restricted (WARN logging, 1% tracing, key metrics only)
+
+---
+
+### 7. Feature Flags Configuration
+
+**Group:** `features`
+
+Runtime feature control enabling A/B testing and gradual rollouts without redeployment.
+
+#### Properties
+
+```yaml
+features:
+  rag-enabled: ${FEATURE_RAG:true}
+  intent-classification: ${FEATURE_INTENT_CLASSIFICATION:true}
+  recommendations: ${FEATURE_RECOMMENDATIONS:true}
+  sentiment-analysis: ${FEATURE_SENTIMENT_ANALYSIS:false}
+  escalation-automation: ${FEATURE_AUTO_ESCALATION:false}
+  multilingual-support: ${FEATURE_MULTILINGUAL:false}
+  kb-auto-indexing: ${FEATURE_KB_AUTO_INDEX:true}
+```
+
+#### Feature Descriptions
+
+| Feature | Description | Default | Notes |
+|---------|-------------|---------|-------|
+| `rag-enabled` | Retrieval-Augmented Generation | `true` | Core feature |
+| `intent-classification` | ML-based intent recognition | `true` | Core feature |
+| `recommendations` | Product/KB recommendations | `true` | Core feature |
+| `sentiment-analysis` | Analyze customer sentiment | `false` | Beta, requires extra resources |
+| `escalation-automation` | Auto-escalate complex issues | `false` | Beta, needs tuning |
+| `multilingual-support` | Support multiple languages | `false` | Future release |
+| `kb-auto-indexing` | Auto-index new KB articles | `true` | Improves RAG |
+
+#### Usage in Code
+
+```java
+@Configuration
+@ConditionalOnProperty(name = "features.rag-enabled", havingValue = "true")
+public class RagFeatureConfig {
+    // RAG-specific beans only loaded if feature enabled
+}
+```
+
+#### Toggling Features at Runtime
+
+```bash
+# Enable sentiment analysis for 10% of users
+export FEATURE_SENTIMENT_ANALYSIS=true
+
+# Disable escalation automation in prod temporarily
+export FEATURE_AUTO_ESCALATION=false
+
+# Start app with feature flags
+java -jar app.jar --spring.profiles.active=prod
+```
+
+#### Profile Defaults
+
+- **local**: All core features enabled, betas enabled for testing
+- **dev**: Core + recommended features enabled
+- **test**: Only core features for stable tests
+- **prod**: Only stable, proven features enabled
+

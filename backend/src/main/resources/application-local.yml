@@ -46,6 +46,86 @@ rag:
     chunk-overlap: 100
     vector-db: pgvector
 
+# External Service Integrations for local development (localhost endpoints)
+integrations:
+  product-service:
+    enabled: true
+    base-url: "http://localhost:9001"
+    timeout: 5s
+    api-key: "local-dev-key"
+  order-service:
+    enabled: true
+    base-url: "http://localhost:9002"
+    timeout: 5s
+    api-key: "local-dev-key"
+  payment-service:
+    enabled: true
+    base-url: "http://localhost:9003"
+    timeout: 10s
+    api-key: "local-dev-key"
+  shipping-service:
+    enabled: true
+    base-url: "http://localhost:9004"
+    timeout: 5s
+    api-key: "local-dev-key"
+  crm-service:
+    enabled: true
+    base-url: "http://localhost:9005"
+    timeout: 5s
+    api-key: "local-dev-key"
+
+# Database and Messaging: Local development settings
+datasources:
+  postgresql:
+    pool-size: 5
+    max-idle-time: 30m
+    connection-timeout: 30s
+  mongodb:
+    max-pool-size: 10
+    connection-timeout: 10s
+  redis:
+    timeout: 5s
+    pool-size: 4
+
+messaging:
+  kafka:
+    producer-timeout: 10s
+    consumer-timeout: 30s
+    batch-size: 16384
+    compression-type: snappy
+  rabbitmq:
+    enabled: false
+
+# Observability: Local development (verbose logging, all metrics)
+observability:
+  metrics:
+    enabled: true
+    include-jvm-metrics: true
+    include-system-metrics: true
+    histogram-percentiles: "0.5,0.95,0.99"
+  tracing:
+    enabled: true
+    sample-rate: 1.0  # 100% sampling for dev
+    exporter: jaeger
+  logging:
+    level: DEBUG
+    include-request-headers: true
+    include-response-body: false
+  health-check:
+    include-database: true
+    include-cache: true
+    include-messaging: true
+
+# Feature Flags: Enable all features for local development
+features:
+  rag-enabled: true
+  intent-classification: true
+  recommendations: true
+  sentiment-analysis: false
+  escalation-automation: false
+  multilingual-support: false
+  kb-auto-indexing: true
+
 # Observability and metrics for local development
 management:
   endpoints:

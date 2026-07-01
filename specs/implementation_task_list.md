@@ -29,10 +29,10 @@ Derived from:
 - [x] Define configuration groups for `security.jwt`.
 - [x] Define configuration groups for `spring.ai.ollama`.
 - [x] Define configuration groups for `rag.retrieval`.
-- [ ] Define configuration groups for product, order, payment, shipping, and CRM service integrations.
-- [ ] Define configuration groups for PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ.
-- [ ] Define configuration groups for observability and feature flags.
-- [ ] Document required environment variables and secret names.
+- [x] Define configuration groups for product, order, payment, shipping, and CRM service integrations.
+- [x] Define configuration groups for PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ.
+- [x] Define configuration groups for observability and feature flags.
+- [x] Document required environment variables and secret names.
 
 ## 3. Docker Compose Infrastructure
 
