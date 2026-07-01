@@ -13,18 +13,20 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * JWT filter that validates Bearer tokens and sets Authentication in the SecurityContext.
+ * Now uses JwtTokenVerifier (Task 8.3) for validation of signature and common claims.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private final JwtTokenVerifier tokenVerifier;
     private final JwtService jwtService;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtTokenVerifier tokenVerifier, JwtService jwtService) {
+        this.tokenVerifier = tokenVerifier;
         this.jwtService = jwtService;
     }
 
@@ -36,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
-                if (jwtService.validateToken(token)) {
+                if (tokenVerifier.validate(token)) {
                     String username = jwtService.getSubject(token);
                     Collection<SimpleGrantedAuthority> authorities = jwtService.getRoles(token)
                             .stream()
