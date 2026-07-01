@@ -43,10 +43,11 @@
         </dependency>
 
         <!-- Persistence and messaging starters requested in Implementation Task 1.5 -->
-        <dependency>
+        <!-- TODO: Uncomment when implementing Task #4 (Domain Model) -->
+        <!-- <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -59,11 +60,11 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-        <!-- JDBC driver for PostgreSQL (operational DB) -->
-        <dependency>
+        <!-- JDBC driver for PostgreSQL (operational DB) - TODO: Uncomment with Task #4 -->
+        <!-- <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-        </dependency>
+        </dependency> -->
 
         <!-- Spring AI Ollama auto-configuration (Implementation Task 1.6) -->
         <dependency>

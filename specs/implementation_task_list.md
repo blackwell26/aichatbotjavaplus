@@ -121,7 +121,7 @@ Derived from:
 
 ## 8. Security and Customer Context
 
-- [ ] Implement Spring Security `SecurityFilterChain`.
+- [x] Implement Spring Security `SecurityFilterChain`.
 - [ ] Implement JWT authentication filter.
 - [ ] Implement JWT token verifier.
 - [ ] Implement customer context resolver.
