@@ -28,18 +28,8 @@ public class JwtTokenVerifier {
      */
     public boolean validate(String token) {
         try {
-            Jws<Claims> jws = jwtService.parseJws(token);
+            Jws<Claims> jws = jwtService.parseJws(token, props.getAllowedClockSkewSeconds());
             Claims claims = jws.getBody();
-
-            // expiration check (jjwt will throw if expired, but double-check with allowed skew)
-            Date exp = claims.getExpiration();
-            if (exp != null) {
-                Instant now = Instant.now();
-                Instant expTime = exp.toInstant().plusSeconds(props.getAllowedClockSkewSeconds());
-                if (now.isAfter(expTime)) {
-                    return false;
-                }
-            }
 
             if (props.isRequireIssuer()) {
                 String iss = claims.getIssuer();

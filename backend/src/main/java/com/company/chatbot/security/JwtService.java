@@ -38,6 +38,14 @@ public class JwtService {
         return Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
     }
 
+    public Jws<Claims> parseJws(String token, long allowedClockSkewSeconds) {
+        return Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .setAllowedClockSkewSeconds(allowedClockSkewSeconds)
+                .build()
+                .parseClaimsJws(token);
+    }
+
     public String getSubject(String token) {
         Jws<Claims> jws = parseJws(token);
         return jws.getBody().getSubject();
