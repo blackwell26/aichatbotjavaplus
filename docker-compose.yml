@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   # === Databases ===
   postgres:
-    image: pgvector/pgvector:pg15-latest
+    image: postgres:15-alpine
     container_name: aichatbot_postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-aichatbot}
@@ -85,7 +83,7 @@ services:
     ports:
       - "9092:9092"
     healthcheck:
-      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -100,7 +98,7 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
     ports:
-      - "9090:9090"
+      - "9091:9090"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

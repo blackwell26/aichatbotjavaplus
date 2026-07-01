@@ -3,9 +3,29 @@ spring:
     name: aichatbotjava
   profiles:
     default: local
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   flyway:
     locations: classpath:db/migration
     baseline-on-migrate: true
+    enabled: false
+  # Spring AI: Ollama model configuration
+  ai:
+    ollama:
+      url: ${OLLAMA_URL:http://localhost:11434}
+      model: ${OLLAMA_MODEL:llama2}
+      timeout: ${OLLAMA_TIMEOUT:30s}
+      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+  # JPA/Hibernate configuration
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQL15Dialect
 
 # Common server and management defaults
 server:
@@ -28,17 +48,6 @@ security:
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}  # 7 days in seconds
     issuer: ${JWT_ISSUER:aichatbot}
     audience: ${JWT_AUDIENCE:aichatbot-users}
-
-# Spring AI: Ollama model configuration
-spring:
-  ai:
-    ollama:
-      url: ${OLLAMA_URL:http://localhost:11434}
-      model: ${OLLAMA_MODEL:llama2}
-      timeout: ${OLLAMA_TIMEOUT:30s}
-      embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
-
-# RAG: Retrieval-Augmented Generation configuration
 rag:
   retrieval:
     enabled: ${RAG_ENABLED:true}
