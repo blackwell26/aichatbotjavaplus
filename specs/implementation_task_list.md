@@ -36,30 +36,30 @@ Derived from:
 
 ## 3. Docker Compose Infrastructure
 
-- [ ] Create `compose.yaml` for local development.
-- [ ] Add a `backend` service for the Spring Boot application.
-- [ ] Add a `frontend` service placeholder or profile for the Angular UI.
-- [ ] Add PostgreSQL service for operational data.
-- [ ] Enable pgvector in PostgreSQL or use a pgvector-compatible image.
+- [x] Create `compose.yaml` for local development.
+- [x] Add a `backend` service for the Spring Boot application.
+- [x] Add a `frontend` service placeholder or profile for the Angular UI.
+- [x] Add PostgreSQL service for operational data.
+- [x] Enable pgvector in PostgreSQL or use a pgvector-compatible image.
 - [ ] Add PostgreSQL initialization scripts for database, user, extensions, and baseline schema.
-- [ ] Add MongoDB service for chat sessions and conversation history.
-- [ ] Add MongoDB initialization scripts for application user and database.
-- [ ] Add Redis service for active sessions, cache, rate limits, and RAG context.
-- [ ] Add Kafka service as the preferred event broker.
+- [x] Add MongoDB service for chat sessions and conversation history.
+- [x] Add MongoDB initialization scripts for application user and database.
+- [x] Add Redis service for active sessions, cache, rate limits, and RAG context.
+- [x] Add Kafka service as the preferred event broker.
 - [ ] Add Kafka UI or broker inspection service for local debugging.
 - [ ] Add RabbitMQ service under an optional Compose profile for environments that require RabbitMQ.
 - [ ] Add Ollama service for local LLM inference.
 - [ ] Add an Ollama model pull/init helper for the selected local model.
-- [ ] Add Prometheus service for metrics collection.
-- [ ] Add Prometheus scrape configuration for the Spring Boot backend.
-- [ ] Add Grafana service for dashboards.
+- [x] Add Prometheus service for metrics collection.
+- [x] Add Prometheus scrape configuration for the Spring Boot backend.
+- [x] Add Grafana service for dashboards.
 - [ ] Add Grafana datasource provisioning for Prometheus.
 - [ ] Add OpenSearch service for logs.
 - [ ] Add OpenSearch Dashboards service for local log inspection.
 - [ ] Add Jaeger service for distributed tracing.
-- [ ] Add shared Docker network for all services.
-- [ ] Add named volumes for PostgreSQL, MongoDB, Redis, Kafka, RabbitMQ, Ollama, Grafana, and OpenSearch.
-- [ ] Add health checks for infrastructure services where supported.
+- [x] Add shared Docker network for all services.
+- [x] Add named volumes for PostgreSQL, MongoDB, Redis, Kafka, RabbitMQ, Ollama, Grafana, and OpenSearch.
+- [x] Add health checks for infrastructure services where supported.
 - [ ] Add `.env.example` with local ports, credentials, and model settings.
 - [ ] Document startup, shutdown, reset, and log inspection commands.
 
