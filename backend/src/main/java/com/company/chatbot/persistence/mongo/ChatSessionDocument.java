@@ -1,19 +1,18 @@
-package com.company.chatbot.chat;
+package com.company.chatbot.persistence.mongo;
 
-import com.company.chatbot.common.enums.ChatSessionStatus;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Map;
 
-/**
- * Domain model for a customer chat session lifecycle.
- */
-public class ChatSession {
+@Document(collection = "chat_sessions")
+public class ChatSessionDocument {
 
+    @Id
     private String id;
     private String customerId;
-    private ChatSessionStatus status;
+    private String status;
     private String channel;
     private String escalationId;
     private Instant createdAt;
@@ -21,25 +20,7 @@ public class ChatSession {
     private Instant closedAt;
     private Map<String, Object> metadata;
 
-    public ChatSession() {}
-
-    public ChatSession(String id, String customerId, ChatSessionStatus status, Instant createdAt,
-                       Map<String, Object> metadata) {
-        this(id, customerId, status, null, null, createdAt, createdAt, null, metadata);
-    }
-
-    public ChatSession(String id, String customerId, ChatSessionStatus status, String channel, String escalationId,
-                       Instant createdAt, Instant updatedAt, Instant closedAt, Map<String, Object> metadata) {
-        this.id = id;
-        this.customerId = customerId;
-        this.status = status;
-        this.channel = channel;
-        this.escalationId = escalationId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.closedAt = closedAt;
-        this.metadata = metadata;
-    }
+    public ChatSessionDocument() {}
 
     public String getId() {
         return id;
@@ -57,11 +38,11 @@ public class ChatSession {
         this.customerId = customerId;
     }
 
-    public ChatSessionStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(ChatSessionStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -106,7 +87,7 @@ public class ChatSession {
     }
 
     public Map<String, Object> getMetadata() {
-        return metadata == null ? Collections.emptyMap() : metadata;
+        return metadata;
     }
 
     public void setMetadata(Map<String, Object> metadata) {

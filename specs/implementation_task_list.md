@@ -65,21 +65,21 @@ Derived from:
 
 ## 4. Domain Model
 
-- [ ] Define customer context model.
-- [ ] Define chat session model.
-- [ ] Define chat message model.
-- [ ] Define intent classification model.
-- [ ] Define knowledge document model.
-- [ ] Define knowledge chunk model.
-- [ ] Define embedding reference model.
-- [ ] Define support ticket model.
-- [ ] Define escalation model.
-- [ ] Define refund request model.
-- [ ] Define recommendation model.
-- [ ] Define notification event model.
-- [ ] Define analytics snapshot model.
-- [ ] Define audit log model.
-- [ ] Define enums for user roles, intent types, chat session status, message sender type, escalation status, ticket status, confidence level, and notification status.
+- [x] Define customer context model.
+- [x] Define chat session model.
+- [x] Define chat message model.
+- [x] Define intent classification model.
+- [x] Define knowledge document model.
+- [x] Define knowledge chunk model.
+- [x] Define embedding reference model.
+- [x] Define support ticket model.
+- [x] Define escalation model.
+- [x] Define refund request model.
+- [x] Define recommendation model.
+- [x] Define notification event model.
+- [x] Define analytics snapshot model.
+- [x] Define audit log model.
+- [x] Define enums for user roles, intent types, chat session status, message sender type, escalation status, ticket status, confidence level, and notification status.
 
 ## 5. PostgreSQL Persistence
 
@@ -124,7 +124,7 @@ Derived from:
 - [x] Implement Spring Security `SecurityFilterChain`.
 - [x] Implement JWT authentication filter.
 - [ ] Implement JWT token verifier.
-- [ ] Implement customer context resolver.
+- [x] Implement customer context resolver.
 - [ ] Implement role and permission evaluator.
 - [ ] Enforce roles `CUSTOMER`, `AGENT`, `MANAGER`, `ADMIN`, and `SYSTEM`.
 - [ ] Add endpoint authorization rules.
@@ -136,7 +136,7 @@ Derived from:
 
 ## 9. Chat Session Service
 
-- [ ] Implement chat session create workflow.
+- [x] Implement chat session create workflow.
 - [ ] Implement chat session resume workflow.
 - [ ] Implement chat session close workflow.
 - [ ] Implement customer message submission workflow.

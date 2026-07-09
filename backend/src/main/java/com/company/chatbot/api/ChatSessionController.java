@@ -37,7 +37,12 @@ public class ChatSessionController {
     public ResponseEntity<ChatSessionDto> createSession(@CurrentCustomer CustomerContext customer,
                                                          @RequestBody(required = false) CreateRequest request) {
         ChatSession session = sessionService.createSession(customer, request != null ? request.getMetadata() : Map.of());
-        ChatSessionDto dto = new ChatSessionDto(session.getId(), session.getCustomerId(), session.getStatus(), session.getCreatedAt());
+        ChatSessionDto dto = new ChatSessionDto(
+                session.getId(),
+                session.getCustomerId(),
+                session.getStatus().name(),
+                session.getCreatedAt()
+        );
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 }
