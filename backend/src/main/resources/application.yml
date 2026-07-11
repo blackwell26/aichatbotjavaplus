@@ -3,13 +3,19 @@ spring:
     name: aichatbotjava
   profiles:
     default: local
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.DataSourceTransactionManagerAutoConfiguration
-      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
   flyway:
     enabled: false
+  data:
+    mongodb:
+      auto-index-creation: true
   # Spring AI: Ollama model configuration
   ai:
     ollama:
@@ -119,6 +125,13 @@ observability:
     include-database: ${HEALTH_CHECK_DB:true}
     include-cache: ${HEALTH_CHECK_CACHE:true}
     include-messaging: ${HEALTH_CHECK_MESSAGING:true}
+
+# PostgreSQL JPA persistence (disable in tests that do not require a database)
+persistence:
+  postgres:
+    enabled: ${PERSISTENCE_POSTGRES_ENABLED:true}
+  mongo:
+    enabled: ${PERSISTENCE_MONGO_ENABLED:true}
 
 # Feature Flags: Runtime feature control without redeployment
 features:

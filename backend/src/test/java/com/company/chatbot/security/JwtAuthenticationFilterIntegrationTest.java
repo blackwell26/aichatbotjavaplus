@@ -24,7 +24,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = {com.company.chatbot.ChatbotApplication.class, JwtAuthenticationFilterIntegrationTest.TestControllerConfig.class})
 @AutoConfigureMockMvc
-@TestPropertySource(properties = "security.jwt.secret=test-integration-secret-with-length-0123456789")
+@TestPropertySource(properties = {
+        "security.jwt.secret=test-integration-secret-with-length-0123456789",
+        "persistence.postgres.enabled=false",
+        "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,"
+                + "org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,"
+                + "org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration,"
+                + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration"
+})
 public class JwtAuthenticationFilterIntegrationTest {
 
     @Autowired

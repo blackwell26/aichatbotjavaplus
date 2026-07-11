@@ -1,0 +1,5 @@
+ALTER TABLE support_tickets
+    ADD COLUMN IF NOT EXISTS priority VARCHAR(32),
+    ADD COLUMN IF NOT EXISTS assigned_agent_id VARCHAR(128),
+    ADD COLUMN IF NOT EXISTS external_ticket_ref VARCHAR(255),
+    ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();

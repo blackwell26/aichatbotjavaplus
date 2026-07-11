@@ -5,28 +5,32 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
-@Document(collection = "chat_sessions")
-public class ChatSessionDocument {
+@Document(collection = "conversation_summaries")
+public class ConversationSummaryDocument {
 
     @Id
     private String id;
 
+    @Indexed(unique = true)
+    private String sessionId;
+
     @Indexed
     private String customerId;
 
-    @Indexed
-    private String status;
-    private String channel;
-    private String escalationId;
+    private String summaryText;
+    private int messageCount;
+    private List<String> keyTopics;
+
     @Indexed
     private Instant createdAt;
+
     private Instant updatedAt;
-    private Instant closedAt;
     private Map<String, Object> metadata;
 
-    public ChatSessionDocument() {}
+    public ConversationSummaryDocument() {}
 
     public String getId() {
         return id;
@@ -34,6 +38,14 @@ public class ChatSessionDocument {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     public String getCustomerId() {
@@ -44,28 +56,28 @@ public class ChatSessionDocument {
         this.customerId = customerId;
     }
 
-    public String getStatus() {
-        return status;
+    public String getSummaryText() {
+        return summaryText;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setSummaryText(String summaryText) {
+        this.summaryText = summaryText;
     }
 
-    public String getChannel() {
-        return channel;
+    public int getMessageCount() {
+        return messageCount;
     }
 
-    public void setChannel(String channel) {
-        this.channel = channel;
+    public void setMessageCount(int messageCount) {
+        this.messageCount = messageCount;
     }
 
-    public String getEscalationId() {
-        return escalationId;
+    public List<String> getKeyTopics() {
+        return keyTopics;
     }
 
-    public void setEscalationId(String escalationId) {
-        this.escalationId = escalationId;
+    public void setKeyTopics(List<String> keyTopics) {
+        this.keyTopics = keyTopics;
     }
 
     public Instant getCreatedAt() {
@@ -82,14 +94,6 @@ public class ChatSessionDocument {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Instant getClosedAt() {
-        return closedAt;
-    }
-
-    public void setClosedAt(Instant closedAt) {
-        this.closedAt = closedAt;
     }
 
     public Map<String, Object> getMetadata() {

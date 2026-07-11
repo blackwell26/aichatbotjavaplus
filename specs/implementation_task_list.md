@@ -83,30 +83,30 @@ Derived from:
 
 ## 5. PostgreSQL Persistence
 
-- [ ] Create migration for `customers`.
-- [ ] Create migration for `customer_profiles`.
-- [ ] Create migration for `support_tickets`.
-- [ ] Create migration for `ticket_comments`.
-- [ ] Create migration for `escalations`.
-- [ ] Create migration for `knowledge_documents`.
-- [ ] Create migration for `knowledge_chunks`.
-- [ ] Create migration for `document_embeddings`.
-- [ ] Create migration for `refund_requests`.
-- [ ] Create migration for `analytics_snapshots`.
-- [ ] Create migration for `audit_logs`.
-- [ ] Add indexes for customer ID, session ID, order number, ticket status, escalation status, timestamps, and vector search.
-- [ ] Implement Spring Data JPA entities and repositories.
-- [ ] Add repository tests with Testcontainers PostgreSQL.
+- [x] Create migration for `customers`.
+- [x] Create migration for `customer_profiles`.
+- [x] Create migration for `support_tickets`.
+- [x] Create migration for `ticket_comments`.
+- [x] Create migration for `escalations`.
+- [x] Create migration for `knowledge_documents`.
+- [x] Create migration for `knowledge_chunks`.
+- [x] Create migration for `document_embeddings`.
+- [x] Create migration for `refund_requests`.
+- [x] Create migration for `analytics_snapshots`.
+- [x] Create migration for `audit_logs`.
+- [x] Add indexes for customer ID, session ID, order number, ticket status, escalation status, timestamps, and vector search.
+- [x] Implement Spring Data JPA entities and repositories.
+- [x] Add repository tests with Testcontainers PostgreSQL.
 
 ## 6. MongoDB Persistence
 
-- [ ] Define `chat_sessions` collection document.
-- [ ] Define `chat_messages` collection document.
-- [ ] Define `conversation_summaries` collection document.
-- [ ] Define `ai_response_metadata` collection document.
-- [ ] Implement Spring Data MongoDB repositories.
-- [ ] Add indexes for session ID, customer ID, status, created timestamp, and message timestamp.
-- [ ] Add repository tests with Testcontainers MongoDB.
+- [x] Define `chat_sessions` collection document.
+- [x] Define `chat_messages` collection document.
+- [x] Define `conversation_summaries` collection document.
+- [x] Define `ai_response_metadata` collection document.
+- [x] Implement Spring Data MongoDB repositories.
+- [x] Add indexes for session ID, customer ID, status, created timestamp, and message timestamp.
+- [x] Add repository tests with Testcontainers MongoDB.
 
 ## 7. Redis Persistence and Cache
 
