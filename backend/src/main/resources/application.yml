@@ -132,6 +132,14 @@ persistence:
     enabled: ${PERSISTENCE_POSTGRES_ENABLED:true}
   mongo:
     enabled: ${PERSISTENCE_MONGO_ENABLED:true}
+  redis:
+    enabled: ${PERSISTENCE_REDIS_ENABLED:true}
+    ttl:
+      chat-session: ${REDIS_TTL_CHAT_SESSION:24h}
+      chat-context: ${REDIS_TTL_CHAT_CONTEXT:30m}
+      rag-query-cache: ${REDIS_TTL_RAG_QUERY_CACHE:15m}
+      token-blacklist: ${REDIS_TTL_TOKEN_BLACKLIST:1h}
+      rate-limit: ${REDIS_TTL_RATE_LIMIT:1m}
 
 # Feature Flags: Runtime feature control without redeployment
 features:

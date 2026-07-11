@@ -110,14 +110,14 @@ Derived from:
 
 ## 7. Redis Persistence and Cache
 
-- [ ] Define key strategy for `chat:session:{sessionId}`.
-- [ ] Define key strategy for `chat:context:{sessionId}`.
-- [ ] Define key strategy for `rag:query-cache:{hash}`.
-- [ ] Define key strategy for `auth:token-blacklist:{tokenId}`.
-- [ ] Define key strategy for `rate-limit:{customerId}`.
-- [ ] Implement Redis templates or repositories.
-- [ ] Configure TTLs by data type.
-- [ ] Add Redis integration tests.
+- [x] Define key strategy for `chat:session:{sessionId}`.
+- [x] Define key strategy for `chat:context:{sessionId}`.
+- [x] Define key strategy for `rag:query-cache:{hash}`.
+- [x] Define key strategy for `auth:token-blacklist:{tokenId}`.
+- [x] Define key strategy for `rate-limit:{customerId}`.
+- [x] Implement Redis templates or repositories.
+- [x] Configure TTLs by data type.
+- [x] Add Redis integration tests.
 
 ## 8. Security and Customer Context
 
