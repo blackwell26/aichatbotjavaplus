@@ -147,13 +147,13 @@ Derived from:
 
 ## 10. REST Chat APIs
 
-- [ ] Implement `POST /api/v1/chat/sessions`.
-- [ ] Implement `GET /api/v1/chat/sessions/{sessionId}`.
-- [ ] Implement `POST /api/v1/chat/sessions/{sessionId}/messages`.
-- [ ] Implement `POST /api/v1/chat/sessions/{sessionId}/close`.
-- [ ] Implement `GET /api/v1/chat/sessions/{sessionId}/history`.
-- [ ] Add DTOs and validation for chat requests and responses.
-- [ ] Add controller tests for authenticated and unauthorized access.
+- [x] Implement `POST /api/v1/chat/sessions`.
+- [x] Implement `GET /api/v1/chat/sessions/{sessionId}`.
+- [x] Implement `POST /api/v1/chat/sessions/{sessionId}/messages`.
+- [x] Implement `POST /api/v1/chat/sessions/{sessionId}/close`.
+- [x] Implement `GET /api/v1/chat/sessions/{sessionId}/history`.
+- [x] Add DTOs and validation for chat requests and responses.
+- [x] Add controller tests for authenticated and unauthorized access.
 
 ## 11. WebSocket Chat APIs
 
