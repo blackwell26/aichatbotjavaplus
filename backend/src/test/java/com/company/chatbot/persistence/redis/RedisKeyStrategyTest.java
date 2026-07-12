@@ -14,6 +14,7 @@ class RedisKeyStrategyTest {
         assertEquals("rag:query-cache:abc123", RedisKeyStrategy.ragQueryCache("abc123"));
         assertEquals("auth:token-blacklist:token-1", RedisKeyStrategy.tokenBlacklist("token-1"));
         assertEquals("rate-limit:customer-1", RedisKeyStrategy.rateLimit("customer-1"));
+        assertEquals("rate-limit:chat:customer-1", RedisKeyStrategy.rateLimitScope("chat", "customer-1"));
     }
 
     @Test

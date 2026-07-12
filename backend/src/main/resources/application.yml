@@ -45,6 +45,10 @@ security:
     refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800}  # 7 days in seconds
     issuer: ${JWT_ISSUER:aichatbot}
     audience: ${JWT_AUDIENCE:aichatbot-users}
+  rate-limit:
+    enabled: ${SECURITY_RATE_LIMIT_ENABLED:true}
+    chat-max-requests: ${SECURITY_RATE_LIMIT_CHAT_MAX:60}
+    admin-upload-max-requests: ${SECURITY_RATE_LIMIT_ADMIN_UPLOAD_MAX:10}
 rag:
   retrieval:
     enabled: ${RAG_ENABLED:true}

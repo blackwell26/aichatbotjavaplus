@@ -123,27 +123,27 @@ Derived from:
 
 - [x] Implement Spring Security `SecurityFilterChain`.
 - [x] Implement JWT authentication filter.
-- [ ] Implement JWT token verifier.
+- [x] Implement JWT token verifier.
 - [x] Implement customer context resolver.
-- [ ] Implement role and permission evaluator.
-- [ ] Enforce roles `CUSTOMER`, `AGENT`, `MANAGER`, `ADMIN`, and `SYSTEM`.
-- [ ] Add endpoint authorization rules.
-- [ ] Add ownership validation for customer order, payment, refund, and shipping data.
-- [ ] Implement input validation for messages, file uploads, IDs, and workflow requests.
-- [ ] Implement rate limiting for chat and admin upload endpoints.
-- [ ] Add audit logging for sensitive actions.
-- [ ] Add security tests for JWT, RBAC, and ownership checks.
+- [x] Implement role and permission evaluator.
+- [x] Enforce roles `CUSTOMER`, `AGENT`, `MANAGER`, `ADMIN`, and `SYSTEM`.
+- [x] Add endpoint authorization rules.
+- [x] Add ownership validation for customer order, payment, refund, and shipping data.
+- [x] Implement input validation for messages, file uploads, IDs, and workflow requests.
+- [x] Implement rate limiting for chat and admin upload endpoints.
+- [x] Add audit logging for sensitive actions.
+- [x] Add security tests for JWT, RBAC, and ownership checks.
 
 ## 9. Chat Session Service
 
 - [x] Implement chat session create workflow.
-- [ ] Implement chat session resume workflow.
-- [ ] Implement chat session close workflow.
-- [ ] Implement customer message submission workflow.
-- [ ] Persist full conversation transcript to MongoDB.
-- [ ] Store active session state in Redis.
-- [ ] Track sender role, message timestamp, response latency, AI confidence, and escalation status.
-- [ ] Add service tests for create, resume, close, message append, and history retrieval.
+- [x] Implement chat session resume workflow.
+- [x] Implement chat session close workflow.
+- [x] Implement customer message submission workflow.
+- [x] Persist full conversation transcript to MongoDB.
+- [x] Store active session state in Redis.
+- [x] Track sender role, message timestamp, response latency, AI confidence, and escalation status.
+- [x] Add service tests for create, resume, close, message append, and history retrieval.
 
 ## 10. REST Chat APIs
 

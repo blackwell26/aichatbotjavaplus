@@ -21,7 +21,14 @@ public class RateLimitRepository {
     }
 
     public long incrementAndGet(String customerId) {
-        String key = RedisKeyStrategy.rateLimit(customerId);
+        return incrementKey(RedisKeyStrategy.rateLimit(customerId));
+    }
+
+    public long incrementAndGetForKey(String key) {
+        return incrementKey(key);
+    }
+
+    private long incrementKey(String key) {
         Long count = stringRedisTemplate.opsForValue().increment(key);
         if (count != null && count == 1L) {
             stringRedisTemplate.expire(key, windowTtl);

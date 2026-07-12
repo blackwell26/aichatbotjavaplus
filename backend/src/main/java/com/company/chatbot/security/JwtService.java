@@ -51,6 +51,20 @@ public class JwtService {
         return jws.getBody().getSubject();
     }
 
+    public String getCustomerId(String token) {
+        Claims claims = parseJws(token).getBody();
+        Object customerId = claims.get("customerId");
+        if (customerId != null && !String.valueOf(customerId).isBlank()) {
+            return String.valueOf(customerId);
+        }
+        return claims.getSubject();
+    }
+
+    public String getTokenId(String token) {
+        Claims claims = parseJws(token).getBody();
+        return claims.getId();
+    }
+
     @SuppressWarnings("unchecked")
     public List<String> getRoles(String token) {
         Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);

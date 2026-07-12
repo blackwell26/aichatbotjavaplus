@@ -22,7 +22,10 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = {com.company.chatbot.ChatbotApplication.class, JwtAuthenticationFilterIntegrationTest.TestControllerConfig.class})
+@SpringBootTest(classes = {
+        com.company.chatbot.ChatbotApplication.class,
+        SecurityAuthorizationIntegrationTest.TestControllerConfig.class
+})
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {
         "security.jwt.secret=test-integration-secret-with-length-0123456789",
@@ -38,43 +41,64 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 + "org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration,"
                 + "org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration"
 })
-public class JwtAuthenticationFilterIntegrationTest {
+class SecurityAuthorizationIntegrationTest {
+
+    private static final String SECRET = "test-integration-secret-with-length-0123456789";
 
     @Autowired
     MockMvc mockMvc;
 
-    @Autowired
-    JwtService jwtService;
-
     @Test
-    public void whenValidToken_thenEndpointAccessible() throws Exception {
-        // create token using same secret
-        String secret = "test-integration-secret-with-length-0123456789";
-        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-
-        String token = Jwts.builder()
-                .setSubject("bob")
-                .claim("roles", List.of("CUSTOMER"))
-                .signWith(key)
-                .compact();
-
-        mockMvc.perform(get("/test/protected")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+    void customerCanAccessChatEndpoints() throws Exception {
+        mockMvc.perform(get("/api/v1/chat/sessions/test-access")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenFor("customer-1", List.of("CUSTOMER")))
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 
     @Test
-    public void whenNoToken_thenUnauthorized() throws Exception {
-        mockMvc.perform(get("/test/protected")).andExpect(status().isUnauthorized());
+    void customerCannotAccessAdminEndpoints() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/knowledge/documents")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenFor("customer-1", List.of("CUSTOMER")))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void adminCanAccessAdminEndpoints() throws Exception {
+        mockMvc.perform(get("/api/v1/admin/knowledge/documents")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokenFor("admin-1", List.of("ADMIN")))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void unauthenticatedRequestsAreRejected() throws Exception {
+        mockMvc.perform(get("/api/v1/chat/sessions/test-access"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    private String tokenFor(String subject, List<String> roles) {
+        Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .setSubject(subject)
+                .claim("customerId", subject)
+                .claim("roles", roles)
+                .signWith(key)
+                .compact();
     }
 
     @Configuration
     static class TestControllerConfig {
         @RestController
         static class TestController {
-            @GetMapping("/test/protected")
-            public String ok() {
+            @GetMapping("/api/v1/chat/sessions/test-access")
+            public String chatAccess() {
+                return "ok";
+            }
+
+            @GetMapping("/api/v1/admin/knowledge/documents")
+            public String adminAccess() {
                 return "ok";
             }
         }

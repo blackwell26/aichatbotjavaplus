@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 
 /**
  * JWT filter that validates Bearer tokens and sets Authentication in the SecurityContext.
- * Now uses JwtTokenVerifier (Task 8.3) for validation of signature and common claims.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -40,13 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 if (tokenVerifier.validate(token)) {
                     String username = jwtService.getSubject(token);
+                    String customerId = jwtService.getCustomerId(token);
                     Collection<SimpleGrantedAuthority> authorities = jwtService.getRoles(token)
                             .stream()
-                            .map(SimpleGrantedAuthority::new)
+                            .map(SecurityAuthorityUtils::toAuthority)
                             .collect(Collectors.toList());
 
+                    AuthenticatedUser principal = new AuthenticatedUser(username, customerId, authorities);
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                            username,
+                            principal,
                             null,
                             authorities
                     );
@@ -57,7 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
             } catch (Exception ex) {
-                // Token invalid or parsing error
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }

@@ -196,6 +196,10 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <useModulePath>false</useModulePath>
+                    <!-- Required for Mockito inline mocking on Java 24+:
+                         Byte Buddy officially supports up to Java 23; the experimental
+                         flag enables instrumentation of newer class file versions. -->
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
         </plugins>

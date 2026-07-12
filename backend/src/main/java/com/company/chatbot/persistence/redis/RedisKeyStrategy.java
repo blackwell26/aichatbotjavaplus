@@ -35,6 +35,11 @@ public final class RedisKeyStrategy {
         return RATE_LIMIT_PREFIX + requireNonBlank(customerId, "customerId");
     }
 
+    public static String rateLimitScope(String scope, String customerId) {
+        return RATE_LIMIT_PREFIX + requireNonBlank(scope, "scope") + ":"
+                + requireNonBlank(customerId, "customerId");
+    }
+
     private static String requireNonBlank(String value, String fieldName) {
         Objects.requireNonNull(value, fieldName + " must not be null");
         if (value.isBlank()) {

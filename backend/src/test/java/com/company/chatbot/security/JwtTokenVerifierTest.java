@@ -100,4 +100,27 @@ public class JwtTokenVerifierTest {
         // allowedClockSkewSeconds is 120, so token expired 30s ago should be accepted
         assertTrue(verifier.validate(token));
     }
+
+    @Test
+    public void validate_rejectsBlacklistedToken() {
+        String secret = "verifier-secret-long-enough-0123456789-verify";
+        JwtProperties props = new JwtProperties();
+        props.setSecret(secret);
+
+        JwtService service = new JwtService(secret);
+        JwtTokenVerifier verifier = new JwtTokenVerifier(service, props);
+        com.company.chatbot.persistence.redis.TokenBlacklistRepository blacklistRepository =
+                org.mockito.Mockito.mock(com.company.chatbot.persistence.redis.TokenBlacklistRepository.class);
+        org.mockito.Mockito.when(blacklistRepository.isBlacklisted("token-1")).thenReturn(true);
+        verifier.setTokenBlacklistRepository(blacklistRepository);
+
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        String token = Jwts.builder()
+                .setSubject("kay")
+                .setId("token-1")
+                .signWith(key)
+                .compact();
+
+        assertFalse(verifier.validate(token));
+    }
 }
