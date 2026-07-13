@@ -1,16 +1,32 @@
-# Multi-stage build for Angular frontend
-FROM node:18-alpine AS builder
+# ─── Stage 1: Build ───────────────────────────────────────────────────────────
+FROM node:22-alpine AS builder
+
 WORKDIR /app
+
+# Install dependencies first (layer-cached unless package files change)
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
+
+# Copy source and build for production
 COPY . .
-RUN npm run build -- --configuration production
+RUN npm run build:prod
 
-FROM node:18-alpine
-WORKDIR /app
-RUN npm install -g http-server
-COPY --from=builder /app/dist ./dist
-EXPOSE 4200
+# ─── Stage 2: Serve with NGINX ────────────────────────────────────────────────
+FROM nginx:1.27-alpine AS runtime
 
-ENV API_URL=http://localhost:8080
-CMD ["http-server", "dist", "-p", "4200", "--proxy", "${API_URL}"]
+# Remove default NGINX static assets
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built Angular app
+COPY --from=builder /app/dist/aichatbot-frontend/browser /usr/share/nginx/html
+
+# Copy NGINX configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]

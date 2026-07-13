@@ -1,0 +1,3 @@
+#!/bin/sh
+# Run lint-staged for Angular frontend
+cd frontend && npx lint-staged
