@@ -157,13 +157,13 @@ Derived from:
 
 ## 11. WebSocket Chat APIs
 
-- [ ] Configure Spring WebSocket with STOMP endpoint `/ws/chat`.
-- [ ] Implement `/app/chat.send` handler.
-- [ ] Implement `/topic/chat.sessions.{sessionId}` subscription publishing.
-- [ ] Implement `/user/queue/chat` private response publishing.
-- [ ] Propagate authentication and customer context into WebSocket sessions.
-- [ ] Stream AI-generated responses where supported.
-- [ ] Add WebSocket integration tests.
+- [x] Configure Spring WebSocket with STOMP endpoint `/ws/chat`.
+- [x] Implement `/app/chat.send` handler.
+- [x] Implement `/topic/chat.sessions.{sessionId}` subscription publishing.
+- [x] Implement `/user/queue/chat` private response publishing.
+- [x] Propagate authentication and customer context into WebSocket sessions.
+- [x] Stream AI-generated responses where supported.
+- [x] Add WebSocket integration tests.
 
 ## 12. Intent Recognition
 
