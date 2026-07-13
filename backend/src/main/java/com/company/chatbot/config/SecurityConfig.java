@@ -55,7 +55,11 @@ public class SecurityConfig {
                     "/actuator/**",
                     "/health",
                     "/v3/api-docs/**",
-                    "/swagger-ui/**"
+                    "/swagger-ui/**",
+                    // WebSocket handshake endpoints — HTTP-level auth is not used here;
+                    // authentication is enforced at the STOMP CONNECT level by
+                    // WebSocketAuthChannelInterceptor.
+                    "/ws/chat/**"
                 ).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/manager/**").hasAnyRole("MANAGER", "ADMIN", "SYSTEM")
