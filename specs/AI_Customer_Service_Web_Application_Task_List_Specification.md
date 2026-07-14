@@ -23,15 +23,18 @@ This document derives implementation tasks from the Software Design Specificatio
 - T2.6 Navigation
 
 ## Phase 3 - Customer Portal
-- T3.1 Registration
-- T3.2 Profile management
-- T3.3 Product catalog
-- T3.4 Product search/filter
-- T3.5 Product details
-- T3.6 Shopping cart
-- T3.7 Checkout integration
-- T3.8 Order history
-- T3.9 Return requests
+- T3.1 Customer home page
+- T3.2 Registration
+- T3.3 Profile management
+- T3.4 Product catalog
+- T3.5 Product search/filter
+- T3.6 Product details
+- T3.7 Shopping cart and cart state persistence
+- T3.8 Checkout flow and order confirmation
+- T3.9 Order history
+- T3.10 Order details and tracking
+- T3.11 Return requests
+- T3.12 Customer support tickets
 
 ## Phase 4 - AI Chatbot
 - T4.1 Chat launcher
