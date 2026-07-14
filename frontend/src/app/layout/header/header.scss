@@ -1,0 +1,70 @@
+@use '../../../styles/breakpoints' as bp;
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  height: bp.$header-height;
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.brand {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .brand-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}
+
+// Hamburger — only on mobile
+.menu-toggle {
+  @include bp.desktop {
+    display: none !important;
+  }
+}
+
+// Desktop nav — hidden on mobile
+.desktop-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 1rem;
+
+  @include bp.mobile {
+    display: none;
+  }
+
+  a {
+    font-size: 0.875rem;
+  }
+}
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.register-btn {
+  margin-left: 0.5rem;
+}
+
+// User profile dropdown header
+.user-menu-header {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem 0.5rem;
+  pointer-events: none;
+
+  .user-email {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 0.125rem;
+  }
+}

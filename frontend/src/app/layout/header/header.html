@@ -1,0 +1,81 @@
+<mat-toolbar color="primary" class="app-header">
+  <!-- Hamburger — visible on mobile only -->
+  <button
+    mat-icon-button
+    class="menu-toggle"
+    aria-label="Toggle navigation menu"
+    (click)="menuToggle.emit()"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <!-- Logo / brand -->
+  <a routerLink="/home" class="brand" aria-label="Go to home">
+    <span class="brand-name">ChatAssist</span>
+  </a>
+
+  <!-- Desktop nav links -->
+  <nav class="desktop-nav" aria-label="Main navigation">
+    <a mat-button routerLink="/home">Home</a>
+    <a mat-button routerLink="/home/products">Products</a>
+    @if (auth.isAuthenticated()) {
+      <a mat-button routerLink="/home/orders">Orders</a>
+    }
+    @if (rbac.isStaff()) {
+      <a mat-button routerLink="/agent">Agent Portal</a>
+    }
+    @if (rbac.isKnowledgeAdmin() || rbac.isSystemAdmin()) {
+      <a mat-button routerLink="/knowledge">Knowledge</a>
+    }
+    @if (rbac.isSystemAdmin()) {
+      <a mat-button routerLink="/admin">Admin</a>
+    }
+  </nav>
+
+  <span class="flex-spacer"></span>
+
+  <!-- Notification bell (authenticated) -->
+  @if (auth.isAuthenticated()) {
+    <button mat-icon-button aria-label="Notifications">
+      <mat-icon>notifications_none</mat-icon>
+    </button>
+  }
+
+  <!-- Cart button -->
+  <a mat-icon-button routerLink="/home/cart" aria-label="Shopping cart">
+    <mat-icon>shopping_cart</mat-icon>
+  </a>
+
+  <!-- User menu (authenticated) -->
+  @if (auth.isAuthenticated()) {
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="userMenu"
+      aria-label="User account menu"
+      aria-haspopup="true"
+    >
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu" aria-label="User account">
+      <div class="user-menu-header" role="none">
+        <strong>{{ auth.user()?.name }}</strong>
+        <span class="user-email">{{ auth.user()?.email }}</span>
+      </div>
+      <mat-divider />
+      <a mat-menu-item routerLink="/home/profile">
+        <mat-icon>person</mat-icon> My Profile
+      </a>
+      <a mat-menu-item routerLink="/home/orders">
+        <mat-icon>receipt_long</mat-icon> Orders
+      </a>
+      <mat-divider />
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon> Sign out
+      </button>
+    </mat-menu>
+  } @else {
+    <a mat-button routerLink="/auth/login">Sign in</a>
+    <a mat-raised-button routerLink="/auth/register" class="register-btn">Register</a>
+  }
+</mat-toolbar>

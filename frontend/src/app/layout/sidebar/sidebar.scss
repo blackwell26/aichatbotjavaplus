@@ -1,0 +1,85 @@
+@use '../../../styles/breakpoints' as bp;
+
+// ── Backdrop (mobile overlay) ─────────────────────────────────────────────────
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 199;
+
+  @include bp.desktop {
+    display: none;
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────────
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: bp.$sidebar-width;
+  height: 100%;
+  background: var(--mat-sys-surface-container-low);
+  border-right: 1px solid var(--mat-sys-outline-variant);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform 0.25s ease;
+
+  // ── Mobile: drawer behaviour ────────────────────────────────────────────────
+  @include bp.mobile {
+    position: fixed;
+    top: bp.$header-height;
+    left: 0;
+    bottom: 0;
+    z-index: 200;
+    transform: translateX(-100%);
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  // ── Desktop: always visible ─────────────────────────────────────────────────
+  @include bp.desktop {
+    position: sticky;
+    top: bp.$header-height;
+    height: calc(100vh - bp.$header-height);
+    flex-shrink: 0;
+    transform: none !important;
+  }
+}
+
+// Section label
+.section-label {
+  padding: 0.5rem 1rem 0;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+// Active link highlight
+.active-link {
+  background-color: var(--mat-sys-secondary-container) !important;
+  color: var(--mat-sys-on-secondary-container) !important;
+  border-radius: 4px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+// Footer
+.sidebar-footer {
+  padding: 0.75rem 1rem;
+
+  .user-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

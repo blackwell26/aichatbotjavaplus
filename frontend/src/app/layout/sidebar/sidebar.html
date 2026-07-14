@@ -1,0 +1,76 @@
+<!-- Backdrop (mobile) -->
+@if (open) {
+  <div
+    class="sidebar-backdrop"
+    aria-hidden="true"
+    (click)="close()"
+    (keydown.escape)="close()"
+  ></div>
+}
+
+<nav
+  class="sidebar"
+  [class.open]="open"
+  aria-label="Site navigation"
+>
+  <!-- Customer links -->
+  <mat-nav-list>
+    @for (item of customerNav; track item.route) {
+      @if (!item.roles || auth.isAuthenticated() || !item.roles.length) {
+        @if (isVisible(item)) {
+          <a
+            mat-list-item
+            [routerLink]="item.route"
+            routerLinkActive="active-link"
+            (click)="close()"
+          >
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      }
+    }
+  </mat-nav-list>
+
+  <!-- Staff links (only shown when authenticated with staff role) -->
+  @if (rbac.isStaff()) {
+    <mat-divider />
+    <p class="section-label">Staff</p>
+    <mat-nav-list>
+      @for (item of staffNav; track item.route) {
+        @if (isVisible(item)) {
+          <a
+            mat-list-item
+            [routerLink]="item.route"
+            routerLinkActive="active-link"
+            (click)="close()"
+          >
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
+      }
+    </mat-nav-list>
+  }
+
+  <div class="spacer"></div>
+
+  <!-- Auth footer -->
+  <mat-divider />
+  @if (auth.isAuthenticated()) {
+    <div class="sidebar-footer">
+      <span class="user-name">{{ auth.user()?.name }}</span>
+    </div>
+  } @else {
+    <mat-nav-list>
+      <a mat-list-item routerLink="/auth/login" (click)="close()">
+        <mat-icon matListItemIcon>login</mat-icon>
+        <span matListItemTitle>Sign in</span>
+      </a>
+      <a mat-list-item routerLink="/auth/register" (click)="close()">
+        <mat-icon matListItemIcon>person_add</mat-icon>
+        <span matListItemTitle>Create account</span>
+      </a>
+    </mat-nav-list>
+  }
+</nav>

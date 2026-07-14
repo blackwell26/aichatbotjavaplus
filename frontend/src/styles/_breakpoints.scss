@@ -1,0 +1,22 @@
+// ── Breakpoints ────────────────────────────────────────────────────────────────
+// Aligned with Angular Material and common device widths
+$bp-xs: 0px;
+$bp-sm: 600px;   // tablet portrait
+$bp-md: 960px;   // tablet landscape / small laptop
+$bp-lg: 1280px;  // desktop
+$bp-xl: 1920px;  // large desktop
+
+@mixin xs { @media (max-width: #{$bp-sm - 1}) { @content; } }
+@mixin sm { @media (min-width: #{$bp-sm}) { @content; } }
+@mixin sm-only { @media (min-width: #{$bp-sm}) and (max-width: #{$bp-md - 1}) { @content; } }
+@mixin md { @media (min-width: #{$bp-md}) { @content; } }
+@mixin md-only { @media (min-width: #{$bp-md}) and (max-width: #{$bp-lg - 1}) { @content; } }
+@mixin lg { @media (min-width: #{$bp-lg}) { @content; } }
+@mixin mobile { @media (max-width: #{$bp-md - 1}) { @content; } }
+@mixin desktop { @media (min-width: #{$bp-md}) { @content; } }
+
+// ── Layout constants ──────────────────────────────────────────────────────────
+$header-height: 64px;
+$sidebar-width: 256px;
+$sidebar-collapsed-width: 64px;
+$footer-height: 56px;
