@@ -1,0 +1,34 @@
+@use '../../../styles/breakpoints' as bp;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+// Body below the fixed header
+.layout-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+// Right column: breadcrumbs + main + footer
+.main-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0; // prevent flex overflow
+  overflow-y: auto;
+}
+
+// Scrollable content area
+.main-content {
+  flex: 1;
+  padding: 1.5rem;
+  outline: none; // skip-to-content target; visible focus is handled via :focus-visible globally
+
+  @include bp.mobile {
+    padding: 1rem;
+  }
+}

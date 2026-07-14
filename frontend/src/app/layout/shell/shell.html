@@ -1,0 +1,18 @@
+<app-header (menuToggle)="toggleSidebar()" />
+
+<div class="layout-body">
+  <app-sidebar
+    [open]="sidebarOpen()"
+    (closed)="sidebarOpen.set(false)"
+  />
+
+  <div class="main-column">
+    <app-breadcrumbs />
+
+    <main id="main-content" class="main-content" tabindex="-1">
+      <router-outlet />
+    </main>
+
+    <app-footer />
+  </div>
+</div>

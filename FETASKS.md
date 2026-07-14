@@ -49,4 +49,47 @@
   - Dockerfile multi-stage (Node builder → NGINX 1.27)
   - nginx.conf with security headers, immutable asset caching, SPA routing, /health endpoint
 
+ Phase 2 — Delivered
+
+  T2.1 — Login & Authentication pages
+
+  - login, register, password-reset — Angular reactive forms with FormBuilder.nonNullable, Material components, inline
+  validation messages, error banners, loading spinner state, accessible labels and autocomplete attributes
+
+  T2.2 — JWT/OIDC integration
+
+  - AuthService — Signal-based auth state (user, loading, sessionWarning, isAuthenticated); login, register, password-reset,
+  logout, silentRefresh (scheduled timer, uses HttpOnly refresh cookie), session restore on page reload
+  - TokenStorageService — access token in sessionStorage only, with expiry tracking
+  - auth.interceptor — functional interceptor attaching Authorization: Bearer + X-Correlation-ID to all API calls; 401 →
+  redirect to /auth/login?returnUrl=
+  - SessionTimeoutService + SessionTimeoutDialogComponent — watches sessionWarning signal, opens Material dialog with
+  extend/logout choice
+
+  T2.3 — Route guards
+
+  - authGuard — redirects unauthenticated to login with returnUrl
+  - guestGuard — redirects authenticated users away from auth pages
+  - All feature groups in app.routes.ts protected appropriately
+
+  T2.4 — RBAC
+
+  - RbacService — computed role booleans (isAgent, isStaff, etc.)
+  - roleGuard — reads route.data.roles, allows or redirects to /403
+  - HasRoleDirective / HasAnyRoleDirective — structural directives for template-level role gating
+
+  T2.5 — Responsive layout
+
+  - ShellComponent — sticky header, collapsible sidebar drawer (mobile), breadcrumbs, main content area, footer
+  - SidebarComponent — CSS transform drawer on mobile, always-visible on desktop via BreakpointObserver
+  - _breakpoints.scss — SCSS mixins (@include bp.mobile, @include bp.desktop, etc.)
+  - Skip-to-main-content link on app-root for WCAG accessibility
+
+  T2.6 — Navigation
+
+  - HeaderComponent — desktop nav links gated by role, notifications bell, cart, user profile dropdown with name/email/logout
+  - NotificationService — Signal store (push/markRead/markAllRead); NotificationAreaComponent with badge count
+  - BreadcrumbService — derives breadcrumbs from route.data.breadcrumb across the route tree
+  - BreadcrumbsComponent — renders accessible <nav aria-label="Breadcrumb"> with chevron separators
+
 

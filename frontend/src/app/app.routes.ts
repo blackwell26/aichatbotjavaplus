@@ -5,71 +5,79 @@ import { roleGuard } from './core/guards/role.guard';
 import { Role } from './core/models/user.model';
 
 export const routes: Routes = [
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'home',
-  },
-
-  // ── Authentication pages (guest only) ─────────────────────────────────────
+  // ── Authentication pages — bare layout (no shell) ─────────────────────────
   {
     path: 'auth',
     canActivate: [guestGuard],
-    loadChildren: () =>
-      import('./core/auth/auth.routes').then((m) => m.authRoutes),
+    loadChildren: () => import('./core/auth/auth.routes').then((m) => m.authRoutes),
   },
 
-  // ── Customer portal (anonymous + authenticated) ───────────────────────────
+  // ── Shell-wrapped routes ──────────────────────────────────────────────────
   {
-    path: 'home',
-    loadChildren: () =>
-      import('./features/customer/customer.routes').then((m) => m.customerRoutes),
-  },
+    path: '',
+    loadComponent: () => import('./layout/shell/shell').then((m) => m.ShellComponent),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'home',
+      },
 
-  // ── Chat history (authenticated customers) ────────────────────────────────
-  {
-    path: 'chat',
-    canActivate: [authGuard],
-    loadChildren: () =>
-      import('./features/chat/chat.routes').then((m) => m.chatRoutes),
-  },
+      // Customer portal (anonymous + authenticated)
+      {
+        path: 'home',
+        data: { breadcrumb: 'Home' },
+        loadChildren: () =>
+          import('./features/customer/customer.routes').then((m) => m.customerRoutes),
+      },
 
-  // ── Customer-service agent portal ─────────────────────────────────────────
-  {
-    path: 'agent',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [Role.Agent, Role.Manager] },
-    loadChildren: () =>
-      import('./features/agent/agent.routes').then((m) => m.agentRoutes),
-  },
+      // Chat history (authenticated customers)
+      {
+        path: 'chat',
+        canActivate: [authGuard],
+        data: { breadcrumb: 'Chat History' },
+        loadChildren: () =>
+          import('./features/chat/chat.routes').then((m) => m.chatRoutes),
+      },
 
-  // ── Knowledge management portal ───────────────────────────────────────────
-  {
-    path: 'knowledge',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [Role.KnowledgeAdmin, Role.SystemAdmin] },
-    loadChildren: () =>
-      import('./features/knowledge/knowledge.routes').then((m) => m.knowledgeRoutes),
-  },
+      // Customer-service agent portal
+      {
+        path: 'agent',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [Role.Agent, Role.Manager], breadcrumb: 'Agent Portal' },
+        loadChildren: () =>
+          import('./features/agent/agent.routes').then((m) => m.agentRoutes),
+      },
 
-  // ── System administration portal ──────────────────────────────────────────
-  {
-    path: 'admin',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: [Role.SystemAdmin] },
-    loadChildren: () =>
-      import('./features/admin/admin.routes').then((m) => m.adminRoutes),
-  },
+      // Knowledge management portal
+      {
+        path: 'knowledge',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [Role.KnowledgeAdmin, Role.SystemAdmin], breadcrumb: 'Knowledge' },
+        loadChildren: () =>
+          import('./features/knowledge/knowledge.routes').then((m) => m.knowledgeRoutes),
+      },
 
-  // ── Error pages ───────────────────────────────────────────────────────────
-  {
-    path: '403',
-    loadComponent: () =>
-      import('./shared/components/forbidden/forbidden').then((m) => m.ForbiddenComponent),
-  },
-  {
-    path: '**',
-    loadComponent: () =>
-      import('./shared/components/not-found/not-found').then((m) => m.NotFoundComponent),
+      // System administration portal
+      {
+        path: 'admin',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [Role.SystemAdmin], breadcrumb: 'Administration' },
+        loadChildren: () =>
+          import('./features/admin/admin.routes').then((m) => m.adminRoutes),
+      },
+
+      // Error pages
+      {
+        path: '403',
+        loadComponent: () =>
+          import('./shared/components/forbidden/forbidden').then((m) => m.ForbiddenComponent),
+      },
+      {
+        path: '**',
+        loadComponent: () =>
+          import('./shared/components/not-found/not-found').then((m) => m.NotFoundComponent),
+      },
+    ],
   },
 ];

@@ -28,7 +28,7 @@ export interface PasswordResetConfirmRequest {
   newPassword: string;
 }
 
-interface TokenResponse {
+export interface TokenResponse {
   accessToken: string;
   expiresIn: number; // seconds
   tokenType: string;
@@ -81,7 +81,7 @@ export class AuthService implements OnDestroy {
 
   // ── Public API ────────────────────────────────────────────────────────────
 
-  login(credentials: LoginRequest): Observable<TokenResponse> {
+  login(credentials: LoginRequest): Observable<ApiResponse<TokenResponse>> {
     this._loading.set(true);
     return this.http
       .post<ApiResponse<TokenResponse>>(`${this.apiBase}/auth/login`, credentials)
@@ -93,9 +93,7 @@ export class AuthService implements OnDestroy {
         catchError((err) => {
           this._loading.set(false);
           return throwError(() => err);
-        }),
-        // Unwrap envelope so callers get TokenResponse directly
-        // (map is not used here — caller receives ApiResponse, tap handles side effects)
+        })
       );
   }
 
@@ -134,7 +132,7 @@ export class AuthService implements OnDestroy {
     this._user.set(null);
     this._sessionWarning.set(false);
     // Backend call to invalidate the refresh-token cookie
-    this.http.post(`${this.apiBase}/auth/logout`, {}).subscribe({ error: () => {} });
+    this.http.post(`${this.apiBase}/auth/logout`, {}).subscribe({ error: (_e: unknown) => { /* best-effort */ } });
     this.router.navigate(['/auth/login']);
   }
 
@@ -173,12 +171,13 @@ export class AuthService implements OnDestroy {
 
   private silentRefresh(): void {
     this.http
-      .post<ApiResponse<TokenResponse>>(`${this.apiBase}/auth/token/refresh`, {}, {
-        withCredentials: true, // sends the HttpOnly refresh-token cookie
-      })
+      .post<ApiResponse<TokenResponse>>(
+        `${this.apiBase}/auth/token/refresh`,
+        {},
+        { withCredentials: true }
+      )
       .pipe(
         catchError(() => {
-          // Refresh failed — log the user out gracefully
           this.logout();
           return throwError(() => new Error('Silent refresh failed'));
         })
@@ -208,7 +207,6 @@ export class AuthService implements OnDestroy {
       this.tokenStorage.clear();
       return;
     }
-    // Re-validate token with backend to restore the user object
     this.http
       .get<ApiResponse<User>>(`${this.apiBase}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },

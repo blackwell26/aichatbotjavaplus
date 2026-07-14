@@ -36,9 +36,7 @@
 
   <!-- Notification bell (authenticated) -->
   @if (auth.isAuthenticated()) {
-    <button mat-icon-button aria-label="Notifications">
-      <mat-icon>notifications_none</mat-icon>
-    </button>
+    <app-notification-area />
   }
 
   <!-- Cart button -->
@@ -70,7 +68,7 @@
         <mat-icon>receipt_long</mat-icon> Orders
       </a>
       <mat-divider />
-      <button mat-menu-item (click)="logout()">
+      <button mat-menu-item (click)="auth.logout()">
         <mat-icon>logout</mat-icon> Sign out
       </button>
     </mat-menu>

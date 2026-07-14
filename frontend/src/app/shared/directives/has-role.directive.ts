@@ -6,8 +6,8 @@ import {
   ViewContainerRef,
   inject,
 } from '@angular/core';
-import { RbacService } from '../services/rbac.service';
-import { Role } from '../models/user.model';
+import { RbacService } from '../../core/services/rbac.service';
+import { Role } from '../../core/models/user.model';
 
 /**
  * Structural directive that renders its host element only when the current

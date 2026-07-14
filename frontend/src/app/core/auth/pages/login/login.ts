@@ -9,7 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../auth.service';
+import { AuthService } from '../../auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -64,7 +65,7 @@ export class LoginComponent {
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/home';
         this.router.navigateByUrl(returnUrl);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         const msg =
           err?.error?.message ??
           (err?.status === 401

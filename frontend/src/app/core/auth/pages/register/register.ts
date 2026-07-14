@@ -8,11 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { AuthService } from '../../../auth.service';
+import { AuthService } from '../../auth.service';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   passwordMatchValidator,
   passwordStrengthValidator,
-} from '../../../../../shared/utils/password.validators';
+} from '../../../../shared/utils/password.validators';
 
 @Component({
   selector: 'app-register',
@@ -97,7 +98,7 @@ export class RegisterComponent {
             'Account created! Check your email to verify your address, then sign in.'
           );
         },
-        error: (err) => {
+        error: (err: HttpErrorResponse) => {
           const msg =
             err?.error?.message ??
             (err?.status === 409

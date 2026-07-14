@@ -8,7 +8,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { TokenStorageService } from './token-storage.service';
+import { TokenStorageService } from '../auth/token-storage.service';
 
 /**
  * Functional HTTP interceptor (Angular 15+ style).
