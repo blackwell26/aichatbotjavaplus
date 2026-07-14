@@ -167,11 +167,11 @@ Derived from:
 
 ## 12. Intent Recognition
 
-- [ ] Implement deterministic rules for order numbers and escalation phrases.
-- [ ] Implement supported intent enum: product inquiry, order status, refund request, shipping inquiry, payment issue, account issue, FAQ, escalation request, and unknown.
-- [ ] Implement Ollama-based classification for ambiguous messages.
-- [ ] Implement hybrid classification result with confidence score and fallback reason.
-- [ ] Add tests for each supported intent and low-confidence fallback.
+- [x] Implement deterministic rules for order numbers and escalation phrases.
+- [x] Implement supported intent enum: product inquiry, order status, refund request, shipping inquiry, payment issue, account issue, FAQ, escalation request, and unknown.
+- [x] Implement Ollama-based classification for ambiguous messages.
+- [x] Implement hybrid classification result with confidence score and fallback reason.
+- [x] Add tests for each supported intent and low-confidence fallback.
 
 ## 13. Knowledge Base and Ingestion
 

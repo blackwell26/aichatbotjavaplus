@@ -2,6 +2,8 @@ package com.company.chatbot.chat;
 
 import com.company.chatbot.common.enums.ChatSessionStatus;
 import com.company.chatbot.context.CustomerContext;
+import com.company.chatbot.intent.IntentClassification;
+import com.company.chatbot.intent.IntentClassificationService;
 import com.company.chatbot.persistence.mongo.ChatMessageDocumentRepository;
 import com.company.chatbot.persistence.mongo.ChatMessageMapper;
 import com.company.chatbot.persistence.mongo.ChatSessionDocumentRepository;
@@ -59,6 +61,13 @@ public class ChatSessionService {
      */
     private ChatSessionCacheRepository sessionCacheRepository;
 
+    /**
+     * Optional – wired when the intent classification feature is available.
+     * When null, intent classification is silently skipped and the message is stored
+     * without an intent type (callers may supply one explicitly via {@link SubmitMessageRequest}).
+     */
+    private IntentClassificationService intentClassificationService;
+
     public ChatSessionService(ChatSessionDocumentRepository sessionRepository,
                               ChatMessageDocumentRepository messageRepository) {
         this.sessionRepository = sessionRepository;
@@ -68,6 +77,11 @@ public class ChatSessionService {
     @Autowired(required = false)
     public void setSessionCacheRepository(ChatSessionCacheRepository sessionCacheRepository) {
         this.sessionCacheRepository = sessionCacheRepository;
+    }
+
+    @Autowired(required = false)
+    public void setIntentClassificationService(IntentClassificationService intentClassificationService) {
+        this.intentClassificationService = intentClassificationService;
     }
 
     // -----------------------------------------------------------------------
@@ -189,6 +203,25 @@ public class ChatSessionService {
 
         Instant now = Instant.now();
 
+        // Classify intent when not supplied by the caller and the service is available
+        com.company.chatbot.common.enums.IntentType intentType = request.getIntentType();
+        double confidenceScore = request.getConfidenceScore();
+        com.company.chatbot.common.enums.ConfidenceLevel confidenceLevel = request.getConfidenceLevel();
+
+        if (intentType == null && intentClassificationService != null
+                && request.getSenderType() == com.company.chatbot.common.enums.MessageSenderType.CUSTOMER) {
+            try {
+                IntentClassification classification = intentClassificationService.classify(request.getContent());
+                intentType      = classification.getIntentType();
+                confidenceScore = classification.getConfidenceScore();
+                confidenceLevel = classification.getConfidenceLevel();
+                log.debug("intent classified sessionId={} intent={} score={}",
+                        sessionId, intentType, confidenceScore);
+            } catch (Exception ex) {
+                log.warn("Intent classification failed for sessionId={}: {}", sessionId, ex.getMessage());
+            }
+        }
+
         // Build message domain object
         ChatMessage message = new ChatMessage(
                 UUID.randomUUID().toString(),
@@ -196,9 +229,9 @@ public class ChatSessionService {
                 request.getSenderType(),
                 request.getContent(),
                 now,
-                request.getIntentType(),
-                request.getConfidenceLevel(),
-                request.getConfidenceScore(),
+                intentType,
+                confidenceLevel,
+                confidenceScore,
                 request.getResponseLatencyMs(),
                 request.isEscalationFlag(),
                 request.getMetadata()
