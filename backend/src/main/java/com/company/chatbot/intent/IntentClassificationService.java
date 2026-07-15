@@ -4,6 +4,7 @@ import com.company.chatbot.common.enums.ConfidenceLevel;
 import com.company.chatbot.common.enums.IntentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -33,8 +34,15 @@ public class IntentClassificationService {
     private static final Logger log = LoggerFactory.getLogger(IntentClassificationService.class);
 
     private final DeterministicIntentClassifier ruleClassifier;
-    private final OllamaIntentClassifier ollamaClassifier;
     private final IntentClassificationProperties properties;
+    private OllamaIntentClassifier ollamaClassifier;
+
+    @Autowired
+    public IntentClassificationService(DeterministicIntentClassifier ruleClassifier,
+                                       IntentClassificationProperties properties) {
+        this.ruleClassifier = ruleClassifier;
+        this.properties = properties;
+    }
 
     public IntentClassificationService(DeterministicIntentClassifier ruleClassifier,
                                        OllamaIntentClassifier ollamaClassifier,
@@ -42,6 +50,11 @@ public class IntentClassificationService {
         this.ruleClassifier  = ruleClassifier;
         this.ollamaClassifier = ollamaClassifier;
         this.properties      = properties;
+    }
+
+    @Autowired(required = false)
+    public void setOllamaClassifier(OllamaIntentClassifier ollamaClassifier) {
+        this.ollamaClassifier = ollamaClassifier;
     }
 
     // -----------------------------------------------------------------------
@@ -104,6 +117,11 @@ public class IntentClassificationService {
      * Returns empty if Ollama is unavailable or the score is too low.
      */
     private Optional<IntentClassification> tryOllama(String message) {
+        if (ollamaClassifier == null) {
+            log.debug("Ollama classifier is not configured");
+            return Optional.empty();
+        }
+
         Optional<IntentClassification> ollamaResult;
         try {
             ollamaResult = ollamaClassifier.classify(message);

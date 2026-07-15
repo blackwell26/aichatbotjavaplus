@@ -205,7 +205,7 @@ public class ChatSessionService {
 
         // Classify intent when not supplied by the caller and the service is available
         com.company.chatbot.common.enums.IntentType intentType = request.getIntentType();
-        double confidenceScore = request.getConfidenceScore();
+        Double confidenceScore = request.getConfidenceScore();
         com.company.chatbot.common.enums.ConfidenceLevel confidenceLevel = request.getConfidenceLevel();
 
         if (intentType == null && intentClassificationService != null

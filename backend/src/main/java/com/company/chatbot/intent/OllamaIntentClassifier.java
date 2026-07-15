@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -29,6 +30,7 @@ import java.util.Optional;
  * {@link Optional#empty()} so the hybrid classifier can fall back gracefully.</p>
  */
 @Component
+@ConditionalOnBean(ChatClient.Builder.class)
 public class OllamaIntentClassifier {
 
     private static final Logger log = LoggerFactory.getLogger(OllamaIntentClassifier.class);

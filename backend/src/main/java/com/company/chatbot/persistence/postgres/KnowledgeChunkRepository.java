@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface KnowledgeChunkRepository extends JpaRepository<KnowledgeChunkEntity, Long> {
     List<KnowledgeChunkEntity> findByDocumentIdOrderBySequenceAsc(Long documentId);
+
+    void deleteByDocumentId(Long documentId);
 }

@@ -175,19 +175,27 @@ Derived from:
 
 ## 13. Knowledge Base and Ingestion
 
-- [ ] Implement admin upload endpoint for FAQ, policy, manual, and support article documents.
-- [ ] Validate file type, size, content type, and permissions.
-- [ ] Extract text from uploaded documents.
-- [ ] Chunk documents into retrieval-friendly segments.
-- [ ] Generate embeddings for each chunk.
-- [ ] Persist document metadata and chunks in PostgreSQL.
-- [ ] Persist embeddings in pgvector or the selected vector database.
-- [ ] Support document replacement and versioning.
-- [ ] Track ingestion job status.
-- [ ] Add ingestion tests for valid documents, rejected documents, replacement, and failure handling.
+- [x] Implement admin upload endpoint for FAQ, policy, manual, and support article documents.
+- [x] Implement `GET /api/v1/admin/knowledge/documents`.
+- [x] Implement `GET /api/v1/admin/knowledge/documents/{documentId}`.
+- [x] Implement `POST /api/v1/admin/knowledge/documents/{documentId}/replace`.
+- [x] Implement `GET /api/v1/admin/knowledge/ingestion/{jobId}`.
+- [x] Validate file type, size, content type, and permissions.
+- [x] Extract text from uploaded documents.
+- [x] Chunk documents into retrieval-friendly segments.
+- [x] Generate embeddings for each chunk using a deterministic adapter until the Spring AI embedding client is configured.
+- [x] Persist document metadata and chunks in PostgreSQL.
+- [x] Persist embeddings in pgvector or the selected vector database.
+- [x] Decide and document whether original uploaded documents are stored in object storage, filesystem storage, or discarded after extraction.
+- [x] Support document replacement and versioning.
+- [x] Track ingestion job status.
+- [x] Publish or record `knowledge.document.ingested` events when document ingestion completes.
+- [x] Add ingestion tests for valid documents, rejected documents, replacement, original document handling, job status, and failure handling.
 
 ## 14. RAG Orchestration
 
+- [ ] Depend on the configured embedding client from AI integration.
+- [ ] Depend on approved prompt safety, redaction, and structured response rules.
 - [ ] Implement embedding query generation for customer questions.
 - [ ] Implement vector similarity search.
 - [ ] Implement chunk ranking and filtering.
@@ -195,7 +203,8 @@ Derived from:
 - [ ] Include source citations or source references.
 - [ ] Bound prompt size using configured token or character limits.
 - [ ] Cache safe retrieval results in Redis.
-- [ ] Add tests for retrieval relevance, ranking, prompt assembly, and no-result fallback.
+- [ ] Define retrieval cache keying, TTL, authorization boundaries, and invalidation on knowledge document replacement.
+- [ ] Add tests for retrieval relevance, ranking, prompt assembly, no-result fallback, stale-cache invalidation, unauthorized context, and prompt-size limits.
 
 ## 15. Ollama AI Integration
 

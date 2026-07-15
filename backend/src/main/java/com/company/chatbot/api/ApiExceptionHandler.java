@@ -1,6 +1,8 @@
 package com.company.chatbot.api;
 
 import com.company.chatbot.chat.ChatSessionNotFoundException;
+import com.company.chatbot.knowledge.KnowledgeDocumentNotFoundException;
+import com.company.chatbot.knowledge.KnowledgeIngestionJobNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,6 +22,22 @@ public class ApiExceptionHandler {
     public ResponseEntity<Map<String, String>> handleSessionNotFound(ChatSessionNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "session_not_found",
+                "message", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(KnowledgeDocumentNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleKnowledgeDocumentNotFound(KnowledgeDocumentNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "knowledge_document_not_found",
+                "message", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(KnowledgeIngestionJobNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleKnowledgeJobNotFound(KnowledgeIngestionJobNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "knowledge_ingestion_job_not_found",
                 "message", ex.getMessage()
         ));
     }

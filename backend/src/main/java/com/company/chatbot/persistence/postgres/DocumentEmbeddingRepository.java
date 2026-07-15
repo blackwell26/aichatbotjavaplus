@@ -10,4 +10,6 @@ public interface DocumentEmbeddingRepository extends JpaRepository<DocumentEmbed
     List<DocumentEmbeddingEntity> findByDocumentId(Long documentId);
 
     Optional<DocumentEmbeddingEntity> findByEmbeddingId(String embeddingId);
+
+    void deleteByDocumentId(Long documentId);
 }
