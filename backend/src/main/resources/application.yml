@@ -58,6 +58,20 @@ rag:
     chunk-overlap: ${RAG_CHUNK_OVERLAP:100}  # Overlap between chunks
     vector-db: ${RAG_VECTOR_DB:pgvector}  # pgvector, milvus, pinecone, etc.
 
+ai:
+  ollama:
+    chat-model: ${OLLAMA_MODEL:llama3}
+    embedding-model: ${OLLAMA_EMBEDDING_MODEL:nomic-embed-text}
+    supported-models: ${OLLAMA_SUPPORTED_MODELS:llama3,mistral,qwen,gemma}
+    timeout: ${OLLAMA_TIMEOUT:30s}
+    max-attempts: ${OLLAMA_MAX_ATTEMPTS:2}
+    retry-backoff: ${OLLAMA_RETRY_BACKOFF:250ms}
+    circuit-breaker-failure-rate-threshold: ${OLLAMA_CB_FAILURE_RATE_THRESHOLD:50}
+    circuit-breaker-sliding-window-size: ${OLLAMA_CB_SLIDING_WINDOW_SIZE:10}
+    circuit-breaker-minimum-calls: ${OLLAMA_CB_MINIMUM_CALLS:5}
+    circuit-breaker-open-duration: ${OLLAMA_CB_OPEN_DURATION:30s}
+    fallback-response: ${OLLAMA_FALLBACK_RESPONSE:I cannot reach the AI service right now. Please try again shortly or request a human agent.}
+
 # External Service Integrations: product, order, payment, shipping, CRM
 integrations:
   product-service:

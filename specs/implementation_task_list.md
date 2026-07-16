@@ -208,13 +208,13 @@ Derived from:
 
 ## 15. Ollama AI Integration
 
-- [ ] Configure Spring AI Ollama chat client.
-- [ ] Configure Spring AI Ollama embedding client.
-- [ ] Support configured models: Llama 3, Mistral, Qwen, and Gemma as environment-specific options.
-- [ ] Implement request timeout, retry, and circuit breaker policies.
-- [ ] Capture prompt size, completion latency, model name, failure reason, and confidence metadata.
-- [ ] Implement fallback response when Ollama is unavailable.
-- [ ] Add integration tests with a stubbed Ollama client or local Testcontainers-compatible strategy.
+- [x] Configure Spring AI Ollama chat client.
+- [x] Configure Spring AI Ollama embedding client.
+- [x] Support configured models: Llama 3, Mistral, Qwen, and Gemma as environment-specific options.
+- [x] Implement request timeout, retry, and circuit breaker policies.
+- [x] Capture prompt size, completion latency, model name, failure reason, and confidence metadata.
+- [x] Implement fallback response when Ollama is unavailable.
+- [x] Add integration tests with a stubbed Ollama client or local Testcontainers-compatible strategy.
 
 ## 16. AI Safety and Redaction
 
