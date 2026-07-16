@@ -194,17 +194,17 @@ Derived from:
 
 ## 14. RAG Orchestration
 
-- [ ] Depend on the configured embedding client from AI integration.
-- [ ] Depend on approved prompt safety, redaction, and structured response rules.
-- [ ] Implement embedding query generation for customer questions.
-- [ ] Implement vector similarity search.
-- [ ] Implement chunk ranking and filtering.
-- [ ] Build prompt context from customer context, intent, retrieved chunks, external service facts, and safety constraints.
-- [ ] Include source citations or source references.
-- [ ] Bound prompt size using configured token or character limits.
-- [ ] Cache safe retrieval results in Redis.
-- [ ] Define retrieval cache keying, TTL, authorization boundaries, and invalidation on knowledge document replacement.
-- [ ] Add tests for retrieval relevance, ranking, prompt assembly, no-result fallback, stale-cache invalidation, unauthorized context, and prompt-size limits.
+- [x] Depend on the configured embedding client from AI integration.
+- [x] Depend on approved prompt safety, redaction, and structured response rules.
+- [x] Implement embedding query generation for customer questions.
+- [x] Implement vector similarity search.
+- [x] Implement chunk ranking and filtering.
+- [x] Build prompt context from customer context, intent, retrieved chunks, external service facts, and safety constraints.
+- [x] Include source citations or source references.
+- [x] Bound prompt size using configured token or character limits.
+- [x] Cache safe retrieval results in Redis.
+- [x] Define retrieval cache keying, TTL, authorization boundaries, and invalidation on knowledge document replacement.
+- [x] Add tests for retrieval relevance, ranking, prompt assembly, no-result fallback, stale-cache invalidation, unauthorized context, and prompt-size limits.
 
 ## 15. Ollama AI Integration
 

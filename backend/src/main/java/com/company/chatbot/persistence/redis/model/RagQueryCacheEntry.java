@@ -13,6 +13,9 @@ public class RagQueryCacheEntry {
     private String queryHash;
     private String queryText;
     private List<Map<String, Object>> citations;
+    private List<Map<String, Object>> chunks;
+    private String authorizationScope;
+    private String knowledgeVersionHash;
     private Instant cachedAt;
 
     public RagQueryCacheEntry() {}
@@ -39,6 +42,30 @@ public class RagQueryCacheEntry {
 
     public void setCitations(List<Map<String, Object>> citations) {
         this.citations = citations;
+    }
+
+    public List<Map<String, Object>> getChunks() {
+        return chunks == null ? Collections.emptyList() : chunks;
+    }
+
+    public void setChunks(List<Map<String, Object>> chunks) {
+        this.chunks = chunks;
+    }
+
+    public String getAuthorizationScope() {
+        return authorizationScope;
+    }
+
+    public void setAuthorizationScope(String authorizationScope) {
+        this.authorizationScope = authorizationScope;
+    }
+
+    public String getKnowledgeVersionHash() {
+        return knowledgeVersionHash;
+    }
+
+    public void setKnowledgeVersionHash(String knowledgeVersionHash) {
+        this.knowledgeVersionHash = knowledgeVersionHash;
     }
 
     public Instant getCachedAt() {
