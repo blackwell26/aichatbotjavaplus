@@ -238,26 +238,26 @@ Derived from:
 
 ## 18. Product and Order APIs
 
-- [ ] Implement `GET /api/v1/products/search`.
-- [ ] Implement `GET /api/v1/products/{productId}`.
-- [ ] Implement `GET /api/v1/orders`.
-- [ ] Implement `GET /api/v1/orders/{orderNumber}`.
-- [ ] Implement `GET /api/v1/orders/{orderNumber}/tracking`.
-- [ ] Enforce customer ownership on order endpoints.
-- [ ] Add controller tests for success, not found, unauthorized, and forbidden cases.
+- [x] Implement `GET /api/v1/products/search`.
+- [x] Implement `GET /api/v1/products/{productId}`.
+- [x] Implement `GET /api/v1/orders`.
+- [x] Implement `GET /api/v1/orders/{orderNumber}`.
+- [x] Implement `GET /api/v1/orders/{orderNumber}/tracking`.
+- [x] Enforce customer ownership on order endpoints.
+- [x] Add controller tests for success, not found, unauthorized, and forbidden cases.
 
 ## 19. Refund and Return Workflow
 
-- [ ] Implement return eligibility rules.
-- [ ] Implement refund request creation.
-- [ ] Validate customer ownership of order.
-- [ ] Retrieve return policy through RAG when explaining policy to customers.
-- [ ] Integrate with Payment Service for permitted refund workflow initiation.
-- [ ] Escalate policy exceptions or high-risk refund requests.
-- [ ] Implement `POST /api/v1/orders/{orderNumber}/return-eligibility`.
-- [ ] Implement `POST /api/v1/orders/{orderNumber}/refund-requests`.
-- [ ] Implement `GET /api/v1/refund-requests/{requestId}`.
-- [ ] Add workflow and API tests.
+- [x] Implement return eligibility rules.
+- [x] Implement refund request creation.
+- [x] Validate customer ownership of order.
+- [x] Retrieve return policy through RAG when explaining policy to customers.
+- [x] Integrate with Payment Service for permitted refund workflow initiation.
+- [x] Escalate policy exceptions or high-risk refund requests.
+- [x] Implement `POST /api/v1/orders/{orderNumber}/return-eligibility`.
+- [x] Implement `POST /api/v1/orders/{orderNumber}/refund-requests`.
+- [x] Implement `GET /api/v1/refund-requests/{requestId}`.
+- [x] Add workflow and API tests.
 
 ## 20. Human Escalation and Ticketing
 

@@ -34,7 +34,7 @@ public class OrderClient extends AbstractEcommerceClient {
     }
 
     public record OrderHistoryResponse(List<OrderSummary> items) {}
-    public record OrderStatus(String orderNumber, String status, String trackingNumber, String currency, Object total) {}
+    public record OrderStatus(String orderNumber, String customerId, String status, String trackingNumber, String currency, Object total) {}
     public record OrderSummary(String orderNumber, String status, Object placedAt, Object total) {}
     public record OwnershipCheck(String orderNumber, String customerId, boolean owned) {}
 }
