@@ -218,23 +218,23 @@ Derived from:
 
 ## 16. AI Safety and Redaction
 
-- [ ] Define approved system prompt template.
-- [ ] Add prompt injection mitigation for user messages and retrieved knowledge.
-- [ ] Mask customer data before AI prompt generation.
-- [ ] Prevent exposure of internal prompts, credentials, hidden policies, or unrelated customer data.
-- [ ] Require structured AI response metadata with response text, intent, confidence, citations, and escalation recommendation.
-- [ ] Add tests for redaction, prompt safety rules, and structured output parsing.
+- [x] Define approved system prompt template.
+- [x] Add prompt injection mitigation for user messages and retrieved knowledge.
+- [x] Mask customer data before AI prompt generation.
+- [x] Prevent exposure of internal prompts, credentials, hidden policies, or unrelated customer data.
+- [x] Require structured AI response metadata with response text, intent, confidence, citations, and escalation recommendation.
+- [x] Add tests for redaction, prompt safety rules, and structured output parsing.
 
 ## 17. E-Commerce Integration Clients
 
-- [ ] Implement `ProductClient` for product details, search, pricing, specifications, and inventory checks.
-- [ ] Implement `OrderClient` for order status, order history, and ownership validation.
-- [ ] Implement `PaymentClient` for payment verification, payment issue lookup, and refund status.
-- [ ] Implement `ShippingClient` for tracking number, carrier status, and estimated delivery date.
-- [ ] Implement `CrmClient` for customer profile, preferences, and support history.
-- [ ] Configure `RestClient` or `WebClient` for each downstream service.
-- [ ] Add timeouts, retries, circuit breakers, and correlation ID propagation.
-- [ ] Add contract tests or mock-server tests for all external clients.
+- [x] Implement `ProductClient` for product details, search, pricing, specifications, and inventory checks.
+- [x] Implement `OrderClient` for order status, order history, and ownership validation.
+- [x] Implement `PaymentClient` for payment verification, payment issue lookup, and refund status.
+- [x] Implement `ShippingClient` for tracking number, carrier status, and estimated delivery date.
+- [x] Implement `CrmClient` for customer profile, preferences, and support history.
+- [x] Configure `RestClient` or `WebClient` for each downstream service.
+- [x] Add timeouts, retries, circuit breakers, and correlation ID propagation.
+- [x] Add contract tests or mock-server tests for all external clients.
 
 ## 18. Product and Order APIs
 

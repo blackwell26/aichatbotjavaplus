@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -17,17 +18,41 @@ class OllamaAiServiceTest {
     @Test
     void generate_successCapturesMetadata() {
         OllamaAiProperties properties = properties();
-        OllamaAiService service = new OllamaAiService(prompt -> "AI answer", properties);
+        AtomicReference<String> promptRef = new AtomicReference<>();
+        OllamaAiService service = new OllamaAiService(prompt -> {
+            promptRef.set(prompt);
+            return """
+                   {
+                     "responseText": "AI answer",
+                     "intentType": "FAQ",
+                     "confidenceScore": 0.91,
+                     "citations": [
+                       {
+                         "documentId": 1,
+                         "chunkId": 10,
+                         "sourceTitle": "Returns",
+                         "sourceType": "FAQ",
+                         "version": 1,
+                         "similarity": 0.92
+                       }
+                     ],
+                     "escalationRecommended": false,
+                     "metadata": {"channel":"web"}
+                   }
+                   """;
+        }, properties, new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
 
         OllamaAiResponse response = service.generate(request("Explain returns"));
 
         assertThat(response.fallback()).isFalse();
         assertThat(response.responseText()).isEqualTo("AI answer");
         assertThat(response.metadata().getModelName()).isEqualTo("llama3");
-        assertThat(response.metadata().getPromptSize()).isEqualTo("Explain returns".length());
+        assertThat(response.metadata().getPromptSize()).isGreaterThan("Explain returns".length());
         assertThat(response.metadata().getCompletionLatencyMs()).isNotNegative();
         assertThat(response.metadata().getFailureReason()).isNull();
         assertThat(response.metadata().getCitations()).hasSize(1);
+        assertThat(promptRef.get()).contains("Customer context:", "Safety rules:");
+        assertThat(promptRef.get()).doesNotContain("john@example.com");
     }
 
     @Test
@@ -39,8 +64,10 @@ class OllamaAiServiceTest {
             if (attempts.incrementAndGet() == 1) {
                 throw new IllegalStateException("temporary outage");
             }
-            return "Recovered answer";
-        }, properties);
+            return """
+                   {"responseText":"Recovered answer","intentType":"FAQ","confidenceScore":0.88,"citations":[],"escalationRecommended":false,"metadata":{}}
+                   """;
+        }, properties, new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
 
         OllamaAiResponse response = service.generate(request("Explain returns"));
 
@@ -55,7 +82,7 @@ class OllamaAiServiceTest {
         properties.setMaxAttempts(1);
         OllamaAiService service = new OllamaAiService(prompt -> {
             throw new IllegalStateException("connection refused");
-        }, properties);
+        }, properties, new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
 
         OllamaAiResponse response = service.generate(request("Explain returns"));
 
@@ -74,7 +101,7 @@ class OllamaAiServiceTest {
         OllamaAiService service = new OllamaAiService(prompt -> {
             sleep(200);
             return "late";
-        }, properties);
+        }, properties, new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
 
         OllamaAiResponse response = service.generate(request("Explain returns"));
 
@@ -86,7 +113,8 @@ class OllamaAiServiceTest {
     void generate_rejectsUnsupportedModel() {
         OllamaAiProperties properties = properties();
         properties.setChatModel("unsupported-model");
-        OllamaAiService service = new OllamaAiService(prompt -> "unused", properties);
+        OllamaAiService service = new OllamaAiService(prompt -> "unused", properties,
+                new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
 
         assertThatThrownBy(() -> service.generate(request("Explain returns")))
                 .isInstanceOf(IllegalArgumentException.class)

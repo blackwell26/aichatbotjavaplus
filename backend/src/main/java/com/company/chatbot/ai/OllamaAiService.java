@@ -27,12 +27,19 @@ public class OllamaAiService {
 
     private final OllamaChatGateway chatGateway;
     private final OllamaAiProperties properties;
+    private final AiSafetyService aiSafetyService;
+    private final StructuredAiResponseParser responseParser;
     private final CircuitBreaker circuitBreaker;
     private final Retry retry;
 
-    public OllamaAiService(OllamaChatGateway chatGateway, OllamaAiProperties properties) {
+    public OllamaAiService(OllamaChatGateway chatGateway,
+                           OllamaAiProperties properties,
+                           AiSafetyService aiSafetyService,
+                           StructuredAiResponseParser responseParser) {
         this.chatGateway = chatGateway;
         this.properties = properties;
+        this.aiSafetyService = aiSafetyService;
+        this.responseParser = responseParser;
         this.circuitBreaker = CircuitBreaker.of("ollama-chat", CircuitBreakerConfig.custom()
                 .failureRateThreshold(properties.getCircuitBreakerFailureRateThreshold())
                 .slidingWindowSize(properties.getCircuitBreakerSlidingWindowSize())
@@ -50,14 +57,24 @@ public class OllamaAiService {
         validate(request);
         long started = System.nanoTime();
         String selectedModel = selectModel(properties.getChatModel());
+        String prompt = aiSafetyService.buildPrompt(
+                new com.company.chatbot.rag.RagRequest(
+                        request.prompt(),
+                        null,
+                        request.intentType(),
+                        request.metadata(),
+                        aiSafetyService.buildStructuredSystemPrompt()),
+                null,
+                request.metadata());
         Supplier<String> supplier = Retry.decorateSupplier(retry,
-                CircuitBreaker.decorateSupplier(circuitBreaker, () -> callWithTimeout(request.prompt())));
+                CircuitBreaker.decorateSupplier(circuitBreaker, () -> callWithTimeout(prompt)));
 
         try {
-            String responseText = supplier.get();
+            String raw = supplier.get();
+            StructuredAiResponse structured = responseParser.parse(raw);
             long latencyMs = elapsedMs(started);
-            return new OllamaAiResponse(responseText, metadata(request, responseText, selectedModel,
-                    latencyMs, null, false), false);
+            AiResponseMetadata metadata = metadata(request, structured, selectedModel, prompt.length(), latencyMs, null, false);
+            return new OllamaAiResponse(structured.responseText(), metadata, false);
         } catch (Exception ex) {
             long latencyMs = elapsedMs(started);
             String failureReason = failureReason(ex);
@@ -80,22 +97,22 @@ public class OllamaAiService {
         }
     }
 
-    private AiResponseMetadata metadata(OllamaAiRequest request, String responseText, String modelName,
-                                        long latencyMs, String failureReason, boolean fallback) {
+    private AiResponseMetadata metadata(OllamaAiRequest request, StructuredAiResponse structured, String modelName,
+                                        int promptSize, long latencyMs, String failureReason, boolean fallback) {
         AiResponseMetadata metadata = new AiResponseMetadata();
         metadata.setId(UUID.randomUUID().toString());
         metadata.setSessionId(request.sessionId());
         metadata.setMessageId(request.messageId());
-        metadata.setResponseText(responseText);
-        metadata.setIntentType(request.intentType());
-        metadata.setConfidenceLevel(fallback ? ConfidenceLevel.LOW : ConfidenceLevel.HIGH);
-        metadata.setConfidenceScore(fallback ? 0.0 : 0.85);
+        metadata.setResponseText(structured.responseText());
+        metadata.setIntentType(structured.intentType() != null ? structured.intentType() : request.intentType());
+        metadata.setConfidenceLevel(ConfidenceLevel.fromScore(structured.confidenceScore()));
+        metadata.setConfidenceScore(structured.confidenceScore());
         metadata.setModelName(modelName);
-        metadata.setPromptSize(request.prompt().length());
+        metadata.setPromptSize(promptSize);
         metadata.setCompletionLatencyMs(latencyMs);
         metadata.setFailureReason(failureReason);
-        metadata.setCitations(citationMaps(request.citations()));
-        metadata.setEscalationRecommended(fallback);
+        metadata.setCitations(citationMaps(structured.citations().isEmpty() ? request.citations() : structured.citations()));
+        metadata.setEscalationRecommended(fallback || structured.escalationRecommended());
         metadata.setCreatedAt(Instant.now());
         Map<String, Object> details = new LinkedHashMap<>();
         details.put("fallback", fallback);
@@ -103,8 +120,21 @@ public class OllamaAiService {
         if (request.metadata() != null) {
             details.putAll(request.metadata());
         }
+        details.put("structuredResponse", structured.metadata());
         metadata.setMetadata(details);
         return metadata;
+    }
+
+    private AiResponseMetadata metadata(OllamaAiRequest request, String responseText, String modelName,
+                                        long latencyMs, String failureReason, boolean fallback) {
+        StructuredAiResponse structured = new StructuredAiResponse(
+                responseText,
+                request.intentType(),
+                fallback ? 0.0 : 0.85,
+                request.citations(),
+                fallback,
+                request.metadata());
+        return metadata(request, structured, modelName, request.prompt().length(), latencyMs, failureReason, fallback);
     }
 
     private List<Map<String, Object>> citationMaps(List<RagCitation> citations) {
