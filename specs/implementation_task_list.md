@@ -306,15 +306,15 @@ Derived from:
 
 ## 24. Analytics Service
 
-- [ ] Track chat volume.
-- [ ] Track response time.
-- [ ] Track escalation rate.
-- [ ] Track customer satisfaction.
-- [ ] Track model latency and fallback rates.
-- [ ] Persist analytics snapshots where required.
-- [ ] Export operational metrics to Prometheus.
-- [ ] Implement manager analytics APIs for chat volume, response time, escalation rate, and customer satisfaction.
-- [ ] Add tests for aggregation and API results.
+- [x] Track chat volume.
+- [x] Track response time.
+- [x] Track escalation rate.
+- [x] Track customer satisfaction.
+- [x] Track model latency and fallback rates.
+- [x] Persist analytics snapshots where required.
+- [x] Export operational metrics to Prometheus.
+- [x] Implement manager analytics APIs for chat volume, response time, escalation rate, and customer satisfaction.
+- [x] Add tests for aggregation and API results.
 
 ## 25. Observability
 
