@@ -333,5 +333,5 @@ volumes:
 
 networks:
   aichatbot_network:
-    name: aichatbot_network
+    name: ${COMPOSE_PROJECT_NAME:-aichatbotjava}_network
     driver: bridge
