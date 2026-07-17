@@ -1,0 +1,28 @@
+<configuration>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="aichatbotjava"/>
+    <springProperty scope="context" name="APP_ENV" source="app.environment" defaultValue="local"/>
+    <springProperty scope="context" name="LOG_LEVEL" source="observability.logging.level" defaultValue="INFO"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.company.chatbot.observability.JsonLogLayout"/>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/aichatbot/application.log</file>
+        <append>true</append>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.company.chatbot.observability.JsonLogLayout"/>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/aichatbot/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

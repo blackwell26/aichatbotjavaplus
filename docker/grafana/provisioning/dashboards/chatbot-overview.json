@@ -17,14 +17,70 @@
     },
     {
       "type": "timeseries",
-      "title": "Analytics Service Up",
+      "title": "Request Latency",
       "targets": [
         {
-          "expr": "chatbot_analytics_service_up",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[5m])) by (le))",
           "refId": "A"
         }
       ],
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "AI and RAG Latency",
+      "targets": [
+        {
+          "expr": "avg(rate(ollama_completion_latency_ms_sum[5m]))",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(rate(rag_retrieval_latency_ms_sum[5m]))",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Escalation and Fallback",
+      "targets": [
+        {
+          "expr": "rate(chatbot_escalations_total[5m])",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(chatbot_fallbacks_total[5m])",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "AI Confidence and Error Rate",
+      "targets": [
+        {
+          "expr": "avg(ai_confidence_score)",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(application_errors_total[5m])",
+          "refId": "B"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Circuit Breakers",
+      "targets": [
+        {
+          "expr": "resilience4j_circuitbreaker_state",
+          "refId": "A"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 }
     }
   ]
 }

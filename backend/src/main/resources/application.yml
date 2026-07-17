@@ -33,6 +33,23 @@ management:
     web:
       exposure:
         include: health,info,prometheus
+  tracing:
+    sampling:
+      probability: ${TRACE_SAMPLE_RATE:0.1}
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+      compression: gzip
+  observations:
+    annotations:
+      enabled: true
 
 # Configuration groups
 # These are placeholder definitions; values are set per profile in application-{profile}.yml
@@ -174,6 +191,10 @@ observability:
     include-database: ${HEALTH_CHECK_DB:true}
     include-cache: ${HEALTH_CHECK_CACHE:true}
     include-messaging: ${HEALTH_CHECK_MESSAGING:true}
+
+logging:
+  pattern:
+    console: ""
 
 # PostgreSQL JPA persistence (disable in tests that do not require a database)
 persistence:

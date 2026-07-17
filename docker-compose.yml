@@ -248,6 +248,23 @@ services:
     networks:
       - aichatbot_network
 
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:3.1
+    container_name: aichatbot_fluent_bit
+    depends_on:
+      opensearch:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    volumes:
+      - ./docker/fluent-bit/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro
+      - ./docker/fluent-bit/parsers.conf:/fluent-bit/etc/parsers.conf:ro
+      - app-logs:/var/log/aichatbot
+    profiles:
+      - logs
+    networks:
+      - aichatbot_network
+
   jaeger:
     image: jaegertracing/all-in-one:1.57
     container_name: aichatbot_jaeger
@@ -296,6 +313,8 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
     ports:
       - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - app-logs:/var/log/aichatbot
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
       interval: 15s
@@ -330,6 +349,7 @@ volumes:
   prometheus-data:
   grafana-data:
   opensearch-data:
+  app-logs:
 
 networks:
   aichatbot_network:

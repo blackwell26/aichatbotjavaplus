@@ -318,14 +318,14 @@ Derived from:
 
 ## 25. Observability
 
-- [ ] Add Spring Boot Actuator endpoints.
-- [ ] Configure Micrometer Prometheus metrics export.
-- [ ] Add structured JSON logging with correlation ID, request ID, and safe session ID.
-- [ ] Configure OpenTelemetry tracing.
-- [ ] Export traces to Jaeger.
-- [ ] Forward logs to OpenSearch.
-- [ ] Add metrics for request latency, chat latency, RAG retrieval latency, Ollama latency, escalation rate, AI confidence, error rate, and circuit breaker state.
-- [ ] Create baseline Grafana dashboards for application, AI, RAG, and infrastructure metrics.
+- [x] Add Spring Boot Actuator endpoints.
+- [x] Configure Micrometer Prometheus metrics export.
+- [x] Add structured JSON logging with correlation ID, request ID, and safe session ID.
+- [x] Configure OpenTelemetry tracing.
+- [x] Export traces to Jaeger.
+- [x] Forward logs to OpenSearch.
+- [x] Add metrics for request latency, chat latency, RAG retrieval latency, Ollama latency, escalation rate, AI confidence, error rate, and circuit breaker state.
+- [x] Create baseline Grafana dashboards for application, AI, RAG, and infrastructure metrics.
 
 ## 26. Reliability and Resilience
 
