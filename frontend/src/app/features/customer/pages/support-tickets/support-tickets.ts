@@ -1,22 +1,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { OrderService } from '../../services/order.service';
+import { TicketService } from '../../services/ticket.service';
 import {
-  ORDER_STATUS_LABELS,
-  PAYMENT_STATUS_LABELS,
-  OrderSummary,
-} from '../../models/order.model';
+  TICKET_PRIORITY_LABELS,
+  TICKET_STATUS_LABELS,
+  TicketSummary,
+} from '../../models/ticket.model';
 
 @Component({
-  selector: 'app-order-history',
+  selector: 'app-support-tickets',
   standalone: true,
   imports: [
     CommonModule,
-    CurrencyPipe,
     DatePipe,
     RouterLink,
     MatButtonModule,
@@ -24,77 +23,80 @@ import {
     MatProgressSpinnerModule,
   ],
   template: `
-    <section class="order-history" aria-labelledby="orders-title">
+    <section class="tickets-page" aria-labelledby="tickets-title">
       <header class="page-header">
         <nav class="breadcrumb" aria-label="Breadcrumb">
           <a routerLink="/home">Home</a> /
-          <a routerLink="/home/profile">Account</a> / Orders
+          <a routerLink="/home/profile">Account</a> / Support Tickets
         </nav>
-        <h1 id="orders-title">Order History</h1>
+        <h1 id="tickets-title">Support Tickets</h1>
       </header>
+
+      <p class="intro-text">
+        Need help? Open a new ticket by using the
+        <a routerLink="/chat">chatbot</a> or asking a question during order management.
+      </p>
 
       @if (loading()) {
         <div class="loading-center">
-          <mat-spinner diameter="48" aria-label="Loading orders" />
+          <mat-spinner diameter="48" aria-label="Loading tickets" />
         </div>
       } @else if (error()) {
         <div class="error-state" role="alert">
           <mat-icon aria-hidden="true">error_outline</mat-icon>
           <p>{{ error() }}</p>
-          <button mat-raised-button color="primary" (click)="loadOrders()">
-            Retry
-          </button>
+          <button mat-raised-button color="primary" (click)="loadTickets()">Retry</button>
         </div>
-      } @else if (orders().length === 0) {
+      } @else if (tickets().length === 0) {
         <div class="empty-state">
-          <mat-icon class="empty-icon" aria-hidden="true">receipt_long</mat-icon>
-          <h2>No orders yet</h2>
-          <p>When you place your first order, it will appear here.</p>
-          <a mat-raised-button color="primary" routerLink="/home/products">
-            Shop now
-          </a>
+          <mat-icon class="empty-icon" aria-hidden="true">support_agent</mat-icon>
+          <h2>No support tickets</h2>
+          <p>You have no open or recent support tickets.</p>
+          <a mat-raised-button color="primary" routerLink="/chat">Start a chat</a>
         </div>
       } @else {
-        <div class="orders-list" role="list">
-          @for (order of orders(); track order.id) {
-            <article class="order-card" role="listitem">
-              <!-- Header row -->
-              <div class="order-card-header">
-                <div class="order-meta">
-                  <span class="order-number">{{ order.orderNumber }}</span>
-                  <time
-                    class="order-date"
-                    [dateTime]="order.orderDate"
-                  >{{ order.orderDate | date: 'mediumDate' }}</time>
+        <div class="tickets-list" role="list">
+          @for (ticket of tickets(); track ticket.id) {
+            <article class="ticket-card" role="listitem">
+              <div class="ticket-header">
+                <div class="ticket-meta">
+                  <span class="ticket-number">{{ ticket.ticketNumber }}</span>
+                  <time class="ticket-date" [dateTime]="ticket.updatedAt">
+                    Updated {{ ticket.updatedAt | date: 'mediumDate' }}
+                  </time>
                 </div>
 
-                <div class="order-badges">
+                <div class="ticket-badges">
                   <span
                     class="status-badge"
-                    [class]="'status-' + order.status.toLowerCase()"
+                    [class]="'status-' + ticket.status.toLowerCase().replace('_', '-')"
                   >
-                    {{ orderStatusLabels[order.status] }}
+                    {{ statusLabels[ticket.status] }}
                   </span>
                   <span
-                    class="status-badge payment-badge"
-                    [class]="'payment-' + order.paymentStatus.toLowerCase()"
+                    class="priority-badge"
+                    [class]="'priority-' + ticket.priority.toLowerCase()"
                   >
-                    {{ paymentStatusLabels[order.paymentStatus] }}
+                    {{ priorityLabels[ticket.priority] }}
                   </span>
                 </div>
               </div>
 
-              <!-- Summary row -->
-              <div class="order-card-body">
-                <div class="order-stats">
-                  <span>{{ order.itemCount }} item{{ order.itemCount !== 1 ? 's' : '' }}</span>
-                  <span class="order-total">{{ order.total | currency }}</span>
-                </div>
+              <div class="ticket-body">
+                <p class="ticket-subject">{{ ticket.subject }}</p>
+                @if (ticket.orderId) {
+                  <p class="ticket-order">
+                    <mat-icon aria-hidden="true">receipt_long</mat-icon>
+                    Related to order {{ ticket.orderId }}
+                  </p>
+                }
+              </div>
 
+              <div class="ticket-actions">
                 <a
                   mat-stroked-button
-                  [routerLink]="['/home/orders', order.id]"
-                  [attr.aria-label]="'View details for order ' + order.orderNumber"
+                  [routerLink]="['/home/support-tickets', ticket.id]"
+                  [attr.aria-label]="'View ticket ' + ticket.ticketNumber"
                 >
                   View details
                   <mat-icon>chevron_right</mat-icon>
@@ -104,9 +106,8 @@ import {
           }
         </div>
 
-        <!-- Pagination -->
         @if (totalPages() > 1) {
-          <div class="pagination" role="navigation" aria-label="Orders pagination">
+          <div class="pagination" role="navigation" aria-label="Tickets pagination">
             <button
               mat-button
               [disabled]="currentPage() === 0"
@@ -131,7 +132,7 @@ import {
   `,
   styles: [
     `
-      .order-history {
+      .tickets-page {
         display: grid;
         gap: 1.5rem;
         max-width: 60rem;
@@ -153,6 +154,16 @@ import {
       h1 {
         font: var(--mat-sys-headline-medium);
         margin: 0;
+      }
+
+      .intro-text {
+        color: var(--mat-sys-on-surface-variant);
+        font: var(--mat-sys-body-medium);
+        margin: 0;
+      }
+
+      .intro-text a {
+        color: var(--mat-sys-primary);
       }
 
       .loading-center {
@@ -203,115 +214,101 @@ import {
         margin: 0;
       }
 
-      .orders-list {
+      .tickets-list {
         display: grid;
         gap: 1rem;
       }
 
-      .order-card {
+      .ticket-card {
         background: var(--mat-sys-surface-container-low);
         border: 1px solid var(--mat-sys-outline-variant);
         border-radius: 8px;
+        display: grid;
+        gap: 0;
         overflow: hidden;
       }
 
-      .order-card-header {
+      .ticket-header {
         align-items: flex-start;
         border-bottom: 1px solid var(--mat-sys-outline-variant);
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.75rem;
         justify-content: space-between;
-        padding: 1rem 1.25rem 0.75rem;
+        padding: 0.75rem 1.25rem;
       }
 
-      .order-meta {
+      .ticket-meta {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 0.2rem;
       }
 
-      .order-number {
-        font: var(--mat-sys-title-medium);
+      .ticket-number {
+        font: var(--mat-sys-label-large);
       }
 
-      .order-date {
+      .ticket-date {
         color: var(--mat-sys-on-surface-variant);
-        font: var(--mat-sys-body-medium);
+        font: var(--mat-sys-body-small);
       }
 
-      .order-badges {
-        align-items: flex-start;
+      .ticket-badges {
+        align-items: center;
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
       }
 
-      .status-badge {
+      .status-badge,
+      .priority-badge {
         border-radius: 4px;
         font: var(--mat-sys-label-small);
         padding: 0.25rem 0.6rem;
       }
 
-      .status-pending,
-      .status-processing {
-        background: #fff8e1;
-        color: #f57f17;
-      }
-
-      .status-shipped {
-        background: #e3f2fd;
-        color: #1565c0;
-      }
-
-      .status-delivered {
-        background: #e8f5e9;
-        color: #2e7d32;
-      }
-
-      .status-cancelled,
-      .status-returned {
+      .status-open { background: #e3f2fd; color: #1565c0; }
+      .status-in-progress { background: #fff8e1; color: #f57f17; }
+      .status-waiting-customer { background: #f3e5f5; color: #6a1b9a; }
+      .status-resolved, .status-closed {
         background: var(--mat-sys-surface-variant);
         color: var(--mat-sys-on-surface-variant);
       }
 
-      .payment-paid {
-        background: #e8f5e9;
-        color: #2e7d32;
-      }
+      .priority-low { background: var(--mat-sys-surface-variant); color: var(--mat-sys-on-surface-variant); }
+      .priority-medium { background: #fff8e1; color: #f57f17; }
+      .priority-high { background: #fce4ec; color: #b71c1c; }
+      .priority-urgent { background: var(--mat-sys-error-container); color: var(--mat-sys-on-error-container); }
 
-      .payment-pending,
-      .payment-failed {
-        background: var(--mat-sys-error-container);
-        color: var(--mat-sys-on-error-container);
-      }
-
-      .payment-refunded {
-        background: #e3f2fd;
-        color: #1565c0;
-      }
-
-      .order-card-body {
-        align-items: center;
-        display: flex;
-        justify-content: space-between;
+      .ticket-body {
         padding: 0.75rem 1.25rem;
       }
 
-      .order-stats {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+      .ticket-subject {
+        font: var(--mat-sys-title-medium);
+        margin: 0 0 0.25rem;
       }
 
-      .order-stats span {
+      .ticket-order {
+        align-items: center;
         color: var(--mat-sys-on-surface-variant);
-        font: var(--mat-sys-body-medium);
+        display: flex;
+        font: var(--mat-sys-body-small);
+        gap: 0.25rem;
+        margin: 0;
       }
 
-      .order-total {
-        color: var(--mat-sys-on-surface) !important;
-        font: var(--mat-sys-title-medium) !important;
+      .ticket-order mat-icon {
+        font-size: 0.875rem;
+        height: 0.875rem;
+        width: 0.875rem;
+      }
+
+      .ticket-actions {
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        padding: 0.5rem 1.25rem;
       }
 
       .pagination {
@@ -329,13 +326,13 @@ import {
     `,
   ],
 })
-export class OrderHistoryComponent implements OnInit {
-  private readonly orderSvc = inject(OrderService);
+export class SupportTicketsComponent implements OnInit {
+  private readonly ticketSvc = inject(TicketService);
 
-  protected readonly orderStatusLabels = ORDER_STATUS_LABELS;
-  protected readonly paymentStatusLabels = PAYMENT_STATUS_LABELS;
+  protected readonly statusLabels = TICKET_STATUS_LABELS;
+  protected readonly priorityLabels = TICKET_PRIORITY_LABELS;
 
-  protected readonly orders = signal<OrderSummary[]>([]);
+  protected readonly tickets = signal<TicketSummary[]>([]);
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly currentPage = signal(0);
@@ -343,20 +340,20 @@ export class OrderHistoryComponent implements OnInit {
   protected readonly totalPages = () => Math.ceil(this.total() / 20);
 
   ngOnInit(): void {
-    this.loadOrders();
+    this.loadTickets();
   }
 
-  protected loadOrders(): void {
+  protected loadTickets(): void {
     this.loading.set(true);
     this.error.set(null);
-    this.orderSvc.getOrders(this.currentPage(), 20).subscribe({
+    this.ticketSvc.getTickets(this.currentPage(), 20).subscribe({
       next: (res) => {
-        this.orders.set(res.data);
+        this.tickets.set(res.data);
         this.total.set(res.totalElements);
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Could not load your orders. Please try again.');
+        this.error.set('Could not load your support tickets.');
         this.loading.set(false);
       },
     });
@@ -364,7 +361,7 @@ export class OrderHistoryComponent implements OnInit {
 
   protected goToPage(page: number): void {
     this.currentPage.set(page);
-    this.loadOrders();
+    this.loadTickets();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
