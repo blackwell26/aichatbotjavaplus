@@ -1,75 +1,78 @@
 services:
-  # === Databases ===
   postgres:
-    image: postgres:15-alpine
+    image: pgvector/pgvector:pg15
     container_name: aichatbot_postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-aichatbot}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-aichatbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aichatbot}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aichatbot} -d ${POSTGRES_DB:-aichatbot}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
   mongo:
-    image: mongo:latest
+    image: mongo:7
     container_name: aichatbot_mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-aichatbot}
     ports:
-      - "27017:27017"
+      - "${MONGO_PORT:-27017}:27017"
     volumes:
       - mongo-data:/data/db
+      - ./docker/mongo/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD-SHELL", "mongosh --quiet --username ${MONGO_USER:-admin} --password ${MONGO_PASSWORD:-admin} --authenticationDatabase admin --eval \"db.adminCommand('ping')\""]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
   redis:
     image: redis:7-alpine
     container_name: aichatbot_redis
-    command: redis-server --requirepass ${REDIS_PASSWORD:-redis}
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-redis}"]
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-redis} ping | grep PONG"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
-  # === Message Broker ===
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
+    image: confluentinc/cp-zookeeper:7.6.1
     container_name: aichatbot_zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - "${ZOOKEEPER_PORT:-2181}:2181"
     healthcheck:
-      test: ["CMD", "echo", "ruok", "|", "nc", "localhost", "2181"]
+      test: ["CMD-SHELL", "nc -z localhost 2181"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
   kafka:
-    image: confluentinc/cp-kafka:7.4.0
+    image: confluentinc/cp-kafka:7.6.1
     container_name: aichatbot_kafka
     depends_on:
       zookeeper:
@@ -77,81 +80,193 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     ports:
-      - "9092:9092"
+      - "${KAFKA_PORT:-9092}:9092"
     healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      test: ["CMD-SHELL", "nc -z localhost 9092"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
-  # === Observability ===
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: aichatbot_kafka_ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    ports:
+      - "8088:8080"
+    profiles:
+      - debug
+    networks:
+      - aichatbot_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: aichatbot_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    ports:
+      - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    profiles:
+      - rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - aichatbot_network
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aichatbot_ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama --version >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+    networks:
+      - aichatbot_network
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: aichatbot_ollama_pull
+    depends_on:
+      ollama:
+        condition: service_started
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1}
+    entrypoint: ["sh", "-c"]
+    command: ["ollama pull ${OLLAMA_MODEL:-llama3.1}"]
+    profiles:
+      - ollama-init
+    networks:
+      - aichatbot_network
+
   prometheus:
     image: prom/prometheus:latest
     container_name: aichatbot_prometheus
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     ports:
-      - "9091:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:9090/-/healthy >/dev/null"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
   grafana:
     image: grafana/grafana:latest
     container_name: aichatbot_grafana
     environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     ports:
-      - "3000:3000"
+      - "${GRAFANA_PORT:-3000}:3000"
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
     depends_on:
-      - prometheus
+      prometheus:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health >/dev/null"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
     networks:
-      - default
+      - aichatbot_network
 
-  # === Backend Service ===
+  opensearch:
+    image: opensearchproject/opensearch:2.15.0
+    container_name: aichatbot_opensearch
+    environment:
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms512m -Xmx512m
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+    ports:
+      - "${OPENSEARCH_HTTP_PORT:-9200}:9200"
+      - "${OPENSEARCH_TRANSPORT_PORT:-9300}:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+    networks:
+      - aichatbot_network
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.15.0
+    container_name: aichatbot_opensearch_dashboards
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    environment:
+      OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+      DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+    ports:
+      - "${OPENSEARCH_DASHBOARDS_PORT:-5601}:5601"
+    profiles:
+      - logs
+    networks:
+      - aichatbot_network
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: aichatbot_jaeger
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"
+      - "${JAEGER_OTLP_GRPC_PORT:-4317}:4317"
+      - "${JAEGER_OTLP_HTTP_PORT:-4318}:4318"
+    profiles:
+      - tracing
+    networks:
+      - aichatbot_network
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: aichatbot_backend
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
-      POSTGRES_HOST: postgres
-      POSTGRES_DB: ${POSTGRES_DB:-aichatbot}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      MONGO_HOST: mongo
-      MONGO_PORT: 27017
-      MONGO_USERNAME: ${MONGO_USER:-admin}
-      MONGO_PASSWORD: ${MONGO_PASSWORD:-admin}
-      REDIS_HOST: redis
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
-      MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
     depends_on:
       postgres:
         condition: service_healthy
@@ -161,49 +276,62 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aichatbot}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-aichatbot}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-aichatbot}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-admin}@mongo:27017/${MONGO_DB:-aichatbot}?authSource=admin
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD:-redis}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SPRING_AI_OLLAMA_BASE_URL: http://ollama:11434
+      SPRING_AI_OLLAMA_CHAT_OPTIONS_MODEL: ${OLLAMA_MODEL:-llama3.1}
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics,prometheus
+      MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED: "true"
+      MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health >/dev/null"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
     networks:
-      - default
+      - aichatbot_network
 
-  # === Frontend Service (Optional) ===
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: aichatbot_frontend
-    ports:
-      - "4200:4200"
     environment:
       API_URL: http://backend:8080
+    ports:
+      - "${FRONTEND_PORT:-4200}:4200"
     depends_on:
-      - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4200"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      backend:
+        condition: service_healthy
     profiles:
       - frontend
     networks:
-      - default
+      - aichatbot_network
 
 volumes:
   postgres-data:
-    driver: local
   mongo-data:
-    driver: local
   redis-data:
-    driver: local
+  rabbitmq-data:
+  ollama-data:
   prometheus-data:
-    driver: local
   grafana-data:
-    driver: local
+  opensearch-data:
 
 networks:
-  default:
+  aichatbot_network:
     name: aichatbot_network
     driver: bridge

@@ -41,27 +41,27 @@ Derived from:
 - [x] Add a `frontend` service placeholder or profile for the Angular UI.
 - [x] Add PostgreSQL service for operational data.
 - [x] Enable pgvector in PostgreSQL or use a pgvector-compatible image.
-- [ ] Add PostgreSQL initialization scripts for database, user, extensions, and baseline schema.
+- [x] Add PostgreSQL initialization scripts for database, user, extensions, and baseline schema.
 - [x] Add MongoDB service for chat sessions and conversation history.
 - [x] Add MongoDB initialization scripts for application user and database.
 - [x] Add Redis service for active sessions, cache, rate limits, and RAG context.
 - [x] Add Kafka service as the preferred event broker.
-- [ ] Add Kafka UI or broker inspection service for local debugging.
-- [ ] Add RabbitMQ service under an optional Compose profile for environments that require RabbitMQ.
-- [ ] Add Ollama service for local LLM inference.
-- [ ] Add an Ollama model pull/init helper for the selected local model.
+- [x] Add Kafka UI or broker inspection service for local debugging.
+- [x] Add RabbitMQ service under an optional Compose profile for environments that require RabbitMQ.
+- [x] Add Ollama service for local LLM inference.
+- [x] Add an Ollama model pull/init helper for the selected local model.
 - [x] Add Prometheus service for metrics collection.
 - [x] Add Prometheus scrape configuration for the Spring Boot backend.
 - [x] Add Grafana service for dashboards.
-- [ ] Add Grafana datasource provisioning for Prometheus.
-- [ ] Add OpenSearch service for logs.
-- [ ] Add OpenSearch Dashboards service for local log inspection.
-- [ ] Add Jaeger service for distributed tracing.
+- [x] Add Grafana datasource provisioning for Prometheus.
+- [x] Add OpenSearch service for logs.
+- [x] Add OpenSearch Dashboards service for local log inspection.
+- [x] Add Jaeger service for distributed tracing.
 - [x] Add shared Docker network for all services.
 - [x] Add named volumes for PostgreSQL, MongoDB, Redis, Kafka, RabbitMQ, Ollama, Grafana, and OpenSearch.
 - [x] Add health checks for infrastructure services where supported.
-- [ ] Add `.env.example` with local ports, credentials, and model settings.
-- [ ] Document startup, shutdown, reset, and log inspection commands.
+- [x] Add `.env.example` with local ports, credentials, and model settings.
+- [x] Document startup, shutdown, reset, and log inspection commands.
 
 ## 4. Domain Model
 

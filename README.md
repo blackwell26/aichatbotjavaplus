@@ -46,6 +46,12 @@ java -jar backend/target/aichatbotjava-0.1.0-SNAPSHOT.jar \
 # Start all services (Postgres, MongoDB, Redis, Kafka, Prometheus, Grafana)
 docker compose up -d
 
+# Start the optional debugging and tracing services
+docker compose --profile debug --profile logs --profile tracing up -d
+
+# Pull the configured Ollama model
+docker compose --profile ollama-init up ollama-pull
+
 # Check status
 docker compose ps
 
@@ -54,6 +60,9 @@ docker compose logs -f [service-name]
 
 # Stop all services
 docker compose down
+
+# Reset everything including named volumes
+docker compose down -v
 ```
 
 ### 4. Access endpoints
@@ -63,6 +72,9 @@ docker compose down
 - **Metrics**: http://localhost:8080/actuator/prometheus
 - **Grafana Dashboard**: http://localhost:3000 (admin/admin)
 - **Prometheus**: http://localhost:9090
+- **Kafka UI**: http://localhost:8088
+- **OpenSearch Dashboards**: http://localhost:5601
+- **Jaeger**: http://localhost:16686
 
 ## Standard Commands
 
@@ -153,6 +165,22 @@ docker compose exec -T flyway flyway:migrate
 # Or manually with Flyway CLI:
 mvn org.flywaydb:flyway-maven-plugin:migrate \
   -Dflyway.configFiles=backend/src/main/resources/application-local.yml
+```
+
+### Docker Compose Reset and Inspection
+
+```bash
+# Restart the stack
+docker compose restart
+
+# Inspect one service
+docker compose logs -f postgres
+docker compose logs -f kafka
+docker compose logs -f ollama
+
+# Recreate the stack from scratch
+docker compose down -v
+docker compose up -d
 ```
 
 ### Clean
