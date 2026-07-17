@@ -261,18 +261,18 @@ Derived from:
 
 ## 20. Human Escalation and Ticketing
 
-- [ ] Implement escalation triggers for customer request.
-- [ ] Implement escalation trigger for low AI confidence.
-- [ ] Implement escalation trigger for sensitive issues.
-- [ ] Create escalation records in PostgreSQL.
-- [ ] Package conversation summary, transcript reference, customer context, and AI confidence.
-- [ ] Integrate with human support ticket system.
-- [ ] Implement `POST /api/v1/chat/sessions/{sessionId}/escalate`.
-- [ ] Implement `GET /api/v1/agent/escalations`.
-- [ ] Implement `GET /api/v1/agent/escalations/{escalationId}`.
-- [ ] Implement `PUT /api/v1/agent/escalations/{escalationId}/assign`.
-- [ ] Implement `PUT /api/v1/agent/escalations/{escalationId}/status`.
-- [ ] Add escalation workflow tests.
+- [x] Implement escalation triggers for customer request.
+- [x] Implement escalation trigger for low AI confidence.
+- [x] Implement escalation trigger for sensitive issues.
+- [x] Create escalation records in PostgreSQL.
+- [x] Package conversation summary, transcript reference, customer context, and AI confidence.
+- [x] Integrate with human support ticket system.
+- [x] Implement `POST /api/v1/chat/sessions/{sessionId}/escalate`.
+- [x] Implement `GET /api/v1/agent/escalations`.
+- [x] Implement `GET /api/v1/agent/escalations/{escalationId}`.
+- [x] Implement `PUT /api/v1/agent/escalations/{escalationId}/assign`.
+- [x] Implement `PUT /api/v1/agent/escalations/{escalationId}/status`.
+- [x] Add escalation workflow tests.
 
 ## 21. Recommendation Service
 
