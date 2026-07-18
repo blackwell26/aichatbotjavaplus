@@ -92,4 +92,75 @@
   - BreadcrumbService — derives breadcrumbs from route.data.breadcrumb across the route tree
   - BreadcrumbsComponent — renders accessible <nav aria-label="Breadcrumb"> with chevron separators
 
+---------------------------------------------------------------------------------------------------------------------------------------
+
+Phase 4 — AI Chatbot: Implemented
+
+  New files (12):
+
+  ┌───────────┬────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Task      │ File                       │ Description                                                                              │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.1      │ chat/models/chat.model.ts  │ Domain types: ChatSession, ChatMessage, ChatSuggestedPrompt, EscalationRequest/Response, │
+  │           │                            │ WebSocket event types, label maps                                                        │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.1      │ chat/components/chat-launc │ Floating action button (FAB) in bottom-right — auth-gated, toggles chat window, shows    │
+  │           │ her/chat-launcher.ts       │ unread badge                                                                             │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.2/T4.3 │ chat/components/chat-windo │ Full chat UI: message list, textarea input, streaming cursor animation,                  │
+  │           │ w/chat-window.ts           │ AI/Customer/System message bubbles with citations                                        │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.4      │ chat/pages/chat-history/ch │ History page at /chat/history — lists past sessions, paginated, inline transcript viewer │
+  │           │ at-history.ts              │                                                                                          │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.5      │ (in chat-window)           │ Suggested prompt chips — shown when session has no customer messages yet, feature-flag   │
+  │           │                            │ gated                                                                                    │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.6      │ chat/services/chat.service │ REST API integration: create/get/close session, send message, list sessions, load        │
+  │           │ .ts                        │ history                                                                                  │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.7      │ (in chat.service.ts)       │ STOMP/WebSocket streaming: connects on session create, handles MESSAGE, STREAM_CHUNK,    │
+  │           │                            │ STREAM_DONE, ERROR events; falls back to REST when WS unavailable                        │
+  ├───────────┼────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────┤
+  │ T4.8      │ (in chat-window)           │ Human escalation button — calls POST /sessions/{id}/escalate, injects system message,    │
+  │           │                            │ feature-flag gated                                                                       │
+  └───────────┴────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Modified files:
+
+  - chat/chat.routes.ts — added /chat/history route, default redirect
+  - layout/shell/shell.ts — added ChatLauncherComponent import
+  - layout/shell/shell.html — added <app-chat-launcher /> for app-wide persistence
+  - angular.json — added allowedCommonJsDependencies: ["@stomp/stompjs"]
+  - package.json — added @stomp/stompjs@^7.0.0
+
+  Build: ✅ Application bundle generation complete — zero errors.
+● ✓ Goal complete
+    ╰ Phase 4 - AI Chatbot has been fully implemented. All 8 tasks (T4.1–T4.8) are complete:
+
+    T4.1 ChatLauncherComponent + models: Created chat.model.ts with all domain types (ChatSession, ChatMessage, suggested prompts,
+    escalation), and ChatLauncherComponent as a floating FAB in the shell layout — verified at
+    frontend/src/app/features/chat/components/chat-launcher/chat-launcher.ts.
+
+    T4.2/T4.3 ChatWindowComponent: Full chat interface with message bubbles (customer/AI/agent/system), real-time streaming with animated
+    cursor, session state, and auto-scroll — verified at frontend/src/app/features/chat/components/chat-window/chat-window.ts (784 lines).
+
+    T4.4 Conversation history: ChatHistoryComponent page at /chat/history with session list, pagination, and inline transcript viewer —
+    verified at frontend/src/app/features/chat/pages/chat-history/chat-history.ts.
+
+    T4.5 Suggested prompts: 6 default prompt chips shown when session has no customer messages, feature-flag gated via
+    environment.features.suggestedPromptsEnabled — implemented inline in ChatWindowComponent.
+
+    T4.6 Ollama/REST API integration: ChatService covers full REST lifecycle (create/get/close session, send message, escalate, list
+    sessions, get history) — verified at frontend/src/app/features/chat/services/chat.service.ts.
+
+    T4.7 WebSocket/STOMP streaming: ChatService connects to /ws/chat via @stomp/stompjs, handles MESSAGE, STREAM_CHUNK, STREAM_DONE,
+    SESSION_CLOSED, ESCALATED, ERROR events with REST fallback — @stomp/stompjs@7.0.0 added to package.json.
+
+    T4.8 Human escalation: "Talk to an agent" button in ChatWindowComponent calls POST /sessions/{id}/escalate, injects system message
+    confirming ticket number, feature-flag gated — implemented in ChatWindowComponent.
+
+    Shell integration: shell.ts and shell.html updated to include ChatLauncherComponent making the chat FAB persistent across all routes.
+
+    Build verification: `npm run build` completes successfully with "Application bundle generation complete" — zero errors confirmed.
 

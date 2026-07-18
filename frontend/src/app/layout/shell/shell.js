@@ -7,20 +7,13 @@ import { SidebarComponent } from '../sidebar/sidebar';
 import { FooterComponent } from '../footer/footer';
 import { BreadcrumbsComponent } from '../breadcrumbs/breadcrumbs.component';
 import { SessionTimeoutService } from '../../core/auth/session-timeout.service';
+import { ChatLauncherComponent } from '../../features/chat/components/chat-launcher/chat-launcher';
 /**
  * ShellComponent — the persistent application frame.
- *
- * Layout:
- *   ┌─────────────── header ──────────────────┐
- *   │ sidebar │ main content + breadcrumbs     │
- *   │         │ <router-outlet>                │
- *   └─────────┴──────── footer ───────────────┘
- *
- * On mobile the sidebar collapses into a drawer toggled by the header hamburger.
+ * Phase 4: ChatLauncherComponent added for persistent chat FAB.
  */
 let ShellComponent = class ShellComponent {
     breakpointObserver = inject(BreakpointObserver);
-    /** Injecting triggers the effect() inside SessionTimeoutService */
     _sessionTimeout = inject(SessionTimeoutService);
     sidebarOpen = signal(false);
     isMobile = signal(false);
@@ -29,7 +22,6 @@ let ShellComponent = class ShellComponent {
             .observe([Breakpoints.XSmall, Breakpoints.Small])
             .subscribe((state) => {
             this.isMobile.set(state.matches);
-            // Close drawer when switching to desktop
             if (!state.matches) {
                 this.sidebarOpen.set(false);
             }
@@ -49,6 +41,7 @@ ShellComponent = __decorate([
             SidebarComponent,
             FooterComponent,
             BreadcrumbsComponent,
+            ChatLauncherComponent,
         ],
         templateUrl: './shell.html',
         styleUrl: './shell.scss',
