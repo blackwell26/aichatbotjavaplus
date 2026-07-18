@@ -117,6 +117,10 @@ observability:
     include-cache: true
     include-messaging: true
 
+logging:
+  file:
+    name: logs/backend.log
+
 # Feature Flags: Enable all features for local development
 features:
   rag-enabled: true

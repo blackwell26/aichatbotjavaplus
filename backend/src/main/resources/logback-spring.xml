@@ -2,6 +2,8 @@
     <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="aichatbotjava"/>
     <springProperty scope="context" name="APP_ENV" source="app.environment" defaultValue="local"/>
     <springProperty scope="context" name="LOG_LEVEL" source="observability.logging.level" defaultValue="INFO"/>
+    <springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="${user.home}/.aichatbot/logs/application.log"/>
+    <springProperty scope="context" name="LOG_FILE_PATTERN" source="logging.file.pattern" defaultValue="${user.home}/.aichatbot/logs/application.%d{yyyy-MM-dd}.log"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
@@ -15,13 +17,13 @@
 
     <springProfile name="!test">
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>/var/log/aichatbot/application.log</file>
+            <file>${LOG_FILE}</file>
             <append>true</append>
             <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
                 <layout class="com.company.chatbot.observability.JsonLogLayout"/>
             </encoder>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/var/log/aichatbot/application.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <fileNamePattern>${LOG_FILE_PATTERN}</fileNamePattern>
                 <maxHistory>14</maxHistory>
             </rollingPolicy>
         </appender>
