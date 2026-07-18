@@ -297,12 +297,12 @@ Derived from:
 
 ## 23. Messaging and Event Processing
 
-- [ ] Define event envelope with event ID, event type, timestamp, correlation ID, causation ID, tenant or organization ID, payload version, and payload.
-- [ ] Create Kafka topics for chat message received, response generated, session closed, escalation requested, support ticket created, order status updated, refund request created, refund request updated, notification requested, knowledge document ingested, and analytics metric recorded.
-- [ ] Implement producers for chat, escalation, support, refund, notification, knowledge, and analytics events.
-- [ ] Implement consumers required by notification and analytics workflows.
-- [ ] Configure dead-letter topics for failed event processing.
-- [ ] Add event serialization and compatibility tests.
+- [x] Define event envelope with event ID, event type, timestamp, correlation ID, causation ID, tenant or organization ID, payload version, and payload.
+- [x] Create Kafka topics for chat message received, response generated, session closed, escalation requested, support ticket created, order status updated, refund request created, refund request updated, notification requested, knowledge document ingested, and analytics metric recorded.
+- [x] Implement producers for chat, escalation, support, refund, notification, knowledge, and analytics events.
+- [x] Implement consumers required by notification and analytics workflows.
+- [x] Configure dead-letter topics for failed event processing.
+- [x] Add event serialization and compatibility tests.
 
 ## 24. Analytics Service
 
