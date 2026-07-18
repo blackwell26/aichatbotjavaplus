@@ -20,7 +20,7 @@ services:
       - aichatbot_network
 
   mongo:
-    image: mongo:7
+    image: mongo:8.2
     container_name: aichatbot_mongo
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
