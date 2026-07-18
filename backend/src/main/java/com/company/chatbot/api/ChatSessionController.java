@@ -14,10 +14,12 @@ import com.company.chatbot.chat.MessageAppendResult;
 import com.company.chatbot.chat.SubmitMessageRequest;
 import com.company.chatbot.context.CurrentCustomer;
 import com.company.chatbot.context.CustomerContext;
+import com.company.chatbot.common.enums.MessageSenderType;
 import com.company.chatbot.security.AuditLogService;
 import com.company.chatbot.security.validation.ChatMessageValidator;
 import com.company.chatbot.security.validation.IdValidator;
 import com.company.chatbot.security.validation.WorkflowRequestValidator;
+import com.company.chatbot.recommendation.RecommendationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -57,10 +60,17 @@ public class ChatSessionController {
 
     private final ChatSessionService sessionService;
     private final AuditLogService auditLogService;
+    private RecommendationService recommendationService;
 
-    public ChatSessionController(ChatSessionService sessionService, AuditLogService auditLogService) {
+    public ChatSessionController(ChatSessionService sessionService,
+                                 AuditLogService auditLogService) {
         this.sessionService = sessionService;
         this.auditLogService = auditLogService;
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setRecommendationService(RecommendationService recommendationService) {
+        this.recommendationService = recommendationService;
     }
 
     // -----------------------------------------------------------------------
@@ -151,7 +161,18 @@ public class ChatSessionController {
         String validatedId = IdValidator.requireValidSessionId(sessionId);
         String sanitizedContent = ChatMessageValidator.validate(body.getContent());
 
-        SubmitMessageRequest serviceRequest = SubmitMessageRequest.customerMessage(validatedId, sanitizedContent);
+        Map<String, Object> metadata = new LinkedHashMap<>();
+        if (customer != null && recommendationService != null) {
+            Map<String, Object> recommendationMetadata = recommendationService.toMetadata(
+                    recommendationService.recommend(customer, sanitizedContent));
+            metadata.putAll(recommendationMetadata);
+        }
+
+        SubmitMessageRequest serviceRequest = new SubmitMessageRequest.Builder(
+                validatedId,
+                MessageSenderType.CUSTOMER,
+                sanitizedContent
+        ).metadata(metadata).build();
         MessageAppendResult result = sessionService.appendMessage(serviceRequest);
 
         ChatMessageDto messageDto = ChatDtoMapper.toDto(result.getMessage());

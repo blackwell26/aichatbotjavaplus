@@ -276,12 +276,12 @@ Derived from:
 
 ## 21. Recommendation Service
 
-- [ ] Retrieve customer purchase history.
-- [ ] Retrieve product catalog candidates.
-- [ ] Apply business rules to filter unavailable or restricted products.
-- [ ] Generate explainable recommendation reasons.
-- [ ] Integrate recommendations into chat workflow.
-- [ ] Add tests for recommendation filtering and explanation output.
+- [x] Retrieve customer purchase history.
+- [x] Retrieve product catalog candidates.
+- [x] Apply business rules to filter unavailable or restricted products.
+- [x] Generate explainable recommendation reasons.
+- [x] Integrate recommendations into chat workflow.
+- [x] Add tests for recommendation filtering and explanation output.
 
 ## 22. Notification Service
 
@@ -352,12 +352,12 @@ Derived from:
 
 ## 28. Admin and Manager APIs
 
-- [ ] Implement account context APIs.
-- [ ] Implement admin knowledge document list and detail APIs.
-- [ ] Implement manager analytics APIs.
-- [ ] Protect admin APIs with `ADMIN` role.
-- [ ] Protect manager APIs with `MANAGER` role.
-- [ ] Add controller tests for role enforcement.
+- [x] Implement account context APIs.
+- [x] Implement admin knowledge document list and detail APIs.
+- [x] Implement manager analytics APIs.
+- [x] Protect admin APIs with `ADMIN` role.
+- [x] Protect manager APIs with `MANAGER` role.
+- [x] Add controller tests for role enforcement.
 
 ## 29. Deployment Assets
 
