@@ -8,11 +8,13 @@ export const agentRoutes: Routes = [
   },
   {
     path: 'dashboard',
+    data: { breadcrumb: 'Dashboard' },
     loadComponent: () =>
       import('./pages/dashboard/dashboard').then((m) => m.DashboardComponent),
   },
   {
     path: 'queue',
+    data: { breadcrumb: 'Conversation Queue' },
     loadComponent: () =>
       import('./pages/conversation-queue/conversation-queue').then(
         (m) => m.ConversationQueueComponent
@@ -20,6 +22,7 @@ export const agentRoutes: Routes = [
   },
   {
     path: 'conversations/:id',
+    data: { breadcrumb: 'Conversation' },
     loadComponent: () =>
       import('./pages/conversation-workspace/conversation-workspace').then(
         (m) => m.ConversationWorkspaceComponent
