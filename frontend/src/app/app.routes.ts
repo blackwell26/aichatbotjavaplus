@@ -67,6 +67,14 @@ export const routes: Routes = [
           import('./features/admin/admin.routes').then((m) => m.adminRoutes),
       },
 
+      {
+        path: 'manager',
+        canActivate: [authGuard, roleGuard],
+        data: { roles: [Role.Manager, Role.SystemAdmin], breadcrumb: 'Manager' },
+        loadChildren: () =>
+          import('./features/manager/manager.routes').then((m) => m.managerRoutes),
+      },
+
       // Error pages
       {
         path: '403',

@@ -47,6 +47,7 @@ export class SidebarComponent {
   readonly staffNav: NavItem[] = [
     { label: 'Agent Dashboard', icon: 'support_agent', route: '/agent/dashboard', roles: [Role.Agent, Role.Manager] },
     { label: 'Conversation Queue', icon: 'queue', route: '/agent/queue', roles: [Role.Agent, Role.Manager] },
+    { label: 'Manager Analytics', icon: 'analytics', route: '/manager/analytics', roles: [Role.Manager, Role.SystemAdmin] },
     { label: 'Knowledge Base', icon: 'menu_book', route: '/knowledge/documents', roles: [Role.KnowledgeAdmin, Role.SystemAdmin] },
     { label: 'Administration', icon: 'admin_panel_settings', route: '/admin', roles: [Role.SystemAdmin] },
   ];

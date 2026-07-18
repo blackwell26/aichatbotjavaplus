@@ -1,0 +1,52 @@
+For Linux, the default depends on how Docker is installed.
+
+For the normal rootful Docker daemon, a named volume like `mongo-data` lives under:
+
+```bash
+/var/lib/docker/volumes/<volume-name>/_data
+```
+
+In your compose project, the effective volume name is usually:
+
+```bash
+aichatbotjava_mongo-data
+```
+
+so the mountpoint is typically:
+
+```bash
+/var/lib/docker/volumes/aichatbotjava_mongo-data/_data
+```
+
+If you are using rootless Docker, the path is usually under your home directory, for example:
+
+```bash
+~/.local/share/docker/volumes/<volume-name>/_data
+```
+
+If you are using Docker Desktop on Linux, the volume still exists inside Docker’s managed storage, but the exact backing path may differ from the plain `/var/lib/docker` layout.
+
+To check the exact path on your machine:
+
+```bash
+docker volume inspect aichatbotjava_mongo-data
+```
+
+Look for `Mountpoint` in the output.
+docker volume inspect aichatbotjavaplus_mongo-data
+[
+    {
+        "CreatedAt": "2026-07-01T00:26:35-04:00",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.compose.config-hash": "159c6efb9e9b2fa60849b833eeb7015050aefd13dfb31a00a3b31a1349ddcf28",
+            "com.docker.compose.project": "aichatbotjavaplus",
+            "com.docker.compose.version": "5.2.0",
+            "com.docker.compose.volume": "mongo-data"
+        },
+        "Mountpoint": "/var/lib/docker/volumes/aichatbotjavaplus_mongo-data/_data",
+        "Name": "aichatbotjavaplus_mongo-data",
+        "Options": null,
+        "Scope": "local"
+    }
+]
