@@ -1,0 +1,51 @@
+Use the admin knowledge upload API and feed it a few tiny, focused documents. That is the cleanest way to populate the knowledge base because it exercises the real ingestion pipeline, chunking, and embedding path instead of bypassing it.
+
+Recommended small sample set:
+- `FAQ` document: short Q/A items for login, password reset, order lookup
+- `POLICY` document: return window, refund timing, escalation rules
+- `SUPPORT_ARTICLE` document: one troubleshooting note, like “order not found”
+- `MANUAL` document: one internal workflow note for agents
+
+A good sample file is just plain text or Markdown, 10 to 30 lines each. Keep each topic small so retrieval is easy to verify.
+
+Example contents for `faq-sample.md`:
+```md
+# Customer FAQ
+
+Q: How do I reset my password?
+A: Use the password reset link on the login page.
+
+Q: How do I track my order?
+A: Open My Orders and select the order number to view shipping status.
+
+Q: How do I contact support?
+A: Use the chat widget and choose Talk to an agent.
+```
+
+How to load it:
+1. Start the backend and stack.
+2. Log in as an `ADMIN`.
+3. Call `POST /api/v1/admin/knowledge/documents` with:
+   - `file`: the sample `.md` or `.txt`
+   - `sourceType`: one of `FAQ`, `POLICY`, `MANUAL`, `SUPPORT_ARTICLE`
+
+Example with `curl`:
+```bash
+curl -X POST "http://localhost:8080/api/v1/admin/knowledge/documents" \
+  -H "Authorization: Bearer <admin-jwt>" \
+  -F "file=@faq-sample.md" \
+  -F "sourceType=FAQ"
+```
+
+Then verify it:
+- `GET /api/v1/admin/knowledge/documents`
+- `GET /api/v1/admin/knowledge/documents/{documentId}`
+- `GET /api/v1/admin/knowledge/ingestion/{jobId}`
+
+Practical tips:
+- Use 3 to 5 documents max at first.
+- Make titles and topics non-overlapping so you can see which chunk is retrieved.
+- Put one clear answer per paragraph or bullet block; the chunker works better that way.
+- After upload, ask the bot a question that should obviously hit one of the sample docs, like “How long do refunds take?” or “How do I reset my password?”
+
+If you want, I can also give you a ready-made set of 5 tiny sample knowledge documents tailored to this project’s chat, orders, refunds, and escalation flows.

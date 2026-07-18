@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 export interface KnowledgeDocumentSummary {
@@ -59,7 +59,7 @@ export interface AnalyticsSnapshot {
 @Injectable({ providedIn: 'root' })
 export class AdminManagerApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiUrl;
+  private readonly baseUrl = environment.apiBaseUrl;
 
   listKnowledgeDocuments(): Observable<KnowledgeDocumentSummary[]> {
     return this.http.get<KnowledgeDocumentSummary[]>(`${this.baseUrl}/api/v1/admin/knowledge/documents`);
