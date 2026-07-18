@@ -1,8 +1,6 @@
 package com.company.chatbot.messaging;
 
 import com.company.chatbot.analytics.AnalyticsService;
-import com.company.chatbot.notification.NotificationEvent;
-import com.company.chatbot.notification.NotificationEventBridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -14,17 +12,10 @@ import org.springframework.stereotype.Component;
 public class MessagingEventConsumers {
 
     private static final Logger log = LoggerFactory.getLogger(MessagingEventConsumers.class);
-    private final NotificationEventBridge notificationEventBridge;
     private final AnalyticsService analyticsService;
 
-    public MessagingEventConsumers(NotificationEventBridge notificationEventBridge, AnalyticsService analyticsService) {
-        this.notificationEventBridge = notificationEventBridge;
+    public MessagingEventConsumers(AnalyticsService analyticsService) {
         this.analyticsService = analyticsService;
-    }
-
-    @KafkaListener(topics = {EventTopics.NOTIFICATION_REQUESTED})
-    public void onNotificationRequested(EventEnvelope envelope) {
-        notificationEventBridge.record(envelope);
     }
 
     @KafkaListener(topics = {EventTopics.ANALYTICS_METRIC_RECORDED})

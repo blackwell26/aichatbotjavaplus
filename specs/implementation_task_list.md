@@ -285,15 +285,15 @@ Derived from:
 
 ## 22. Notification Service
 
-- [ ] Define notification event payloads.
-- [ ] Generate notifications for order shipped.
-- [ ] Generate notifications for refund approved.
-- [ ] Generate notifications for ticket assigned.
-- [ ] Generate notifications for escalation updates.
-- [ ] Publish notification events to Kafka.
-- [ ] Add RabbitMQ adapter if required by deployment target.
-- [ ] Integrate with email, SMS, push, or internal notification service.
-- [ ] Add tests for event publication and adapter behavior.
+- [x] Define notification event payloads.
+- [x] Generate notifications for order shipped.
+- [x] Generate notifications for refund approved.
+- [x] Generate notifications for ticket assigned.
+- [x] Generate notifications for escalation updates.
+- [x] Publish notification events to Kafka.
+- [x] Add RabbitMQ adapter if required by deployment target.
+- [x] Integrate with email, SMS, push, or internal notification service.
+- [x] Add tests for event publication and adapter behavior.
 
 ## 23. Messaging and Event Processing
 
