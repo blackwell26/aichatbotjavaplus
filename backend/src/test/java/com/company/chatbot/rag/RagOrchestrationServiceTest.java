@@ -157,6 +157,19 @@ class RagOrchestrationServiceTest {
         assertThat(context.prompt()).hasSizeLessThanOrEqualTo(300);
     }
 
+    @Test
+    void buildPromptContext_returnsFallbackWhenEmbeddingFails() {
+        service = new RagOrchestrationService(embeddingRepository, chunkRepository, text -> {
+            throw new IllegalStateException("vector search unavailable");
+        }, properties);
+
+        RagPromptContext context = service.buildPromptContext(request("warranty"));
+
+        assertThat(context.fallbackReason()).contains("vector search unavailable");
+        assertThat(context.noResults()).isTrue();
+        assertThat(context.prompt()).contains("No relevant knowledge chunks were found");
+    }
+
     private RagRequest request(String question) {
         return new RagRequest(
                 question,

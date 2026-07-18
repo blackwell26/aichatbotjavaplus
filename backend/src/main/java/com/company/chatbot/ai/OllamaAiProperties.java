@@ -21,6 +21,8 @@ public class OllamaAiProperties {
     private int circuitBreakerMinimumCalls = 5;
     private Duration circuitBreakerOpenDuration = Duration.ofSeconds(30);
     private String fallbackResponse = "I cannot reach the AI service right now. Please try again shortly or request a human agent.";
+    private int bulkheadMaxConcurrentCalls = 4;
+    private Duration bulkheadMaxWaitDuration = Duration.ofMillis(100);
 
     public String getChatModel() {
         return chatModel;
@@ -108,5 +110,21 @@ public class OllamaAiProperties {
 
     public void setFallbackResponse(String fallbackResponse) {
         this.fallbackResponse = fallbackResponse;
+    }
+
+    public int getBulkheadMaxConcurrentCalls() {
+        return bulkheadMaxConcurrentCalls;
+    }
+
+    public void setBulkheadMaxConcurrentCalls(int bulkheadMaxConcurrentCalls) {
+        this.bulkheadMaxConcurrentCalls = bulkheadMaxConcurrentCalls;
+    }
+
+    public Duration getBulkheadMaxWaitDuration() {
+        return bulkheadMaxWaitDuration;
+    }
+
+    public void setBulkheadMaxWaitDuration(Duration bulkheadMaxWaitDuration) {
+        this.bulkheadMaxWaitDuration = bulkheadMaxWaitDuration;
     }
 }

@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Semaphore;
 import java.util.function.Supplier;
 
 @Service
@@ -31,6 +32,7 @@ public class OllamaAiService {
     private final StructuredAiResponseParser responseParser;
     private final CircuitBreaker circuitBreaker;
     private final Retry retry;
+    private final Semaphore bulkhead;
 
     public OllamaAiService(OllamaChatGateway chatGateway,
                            OllamaAiProperties properties,
@@ -51,6 +53,7 @@ public class OllamaAiService {
                 .waitDuration(properties.getRetryBackoff())
                 .retryExceptions(RuntimeException.class)
                 .build());
+        this.bulkhead = new Semaphore(Math.max(1, properties.getBulkheadMaxConcurrentCalls()));
     }
 
     public OllamaAiResponse generate(OllamaAiRequest request) {
@@ -66,15 +69,21 @@ public class OllamaAiService {
                         aiSafetyService.buildStructuredSystemPrompt()),
                 null,
                 request.metadata());
-        Supplier<String> supplier = Retry.decorateSupplier(retry,
-                CircuitBreaker.decorateSupplier(circuitBreaker, () -> callWithTimeout(prompt)));
-
         try {
-            String raw = supplier.get();
-            StructuredAiResponse structured = responseParser.parse(raw);
-            long latencyMs = elapsedMs(started);
-            AiResponseMetadata metadata = metadata(request, structured, selectedModel, prompt.length(), latencyMs, null, false);
-            return new OllamaAiResponse(structured.responseText(), metadata, false);
+            if (!bulkhead.tryAcquire(properties.getBulkheadMaxWaitDuration().toMillis(), TimeUnit.MILLISECONDS)) {
+                throw new OllamaAiUnavailableException("Ollama bulkhead limit exceeded", null);
+            }
+            try {
+                Supplier<String> supplier = Retry.decorateSupplier(retry,
+                        CircuitBreaker.decorateSupplier(circuitBreaker, () -> callWithTimeout(prompt)));
+                String raw = supplier.get();
+                StructuredAiResponse structured = responseParser.parse(raw);
+                long latencyMs = elapsedMs(started);
+                AiResponseMetadata metadata = metadata(request, structured, selectedModel, prompt.length(), latencyMs, null, false);
+                return new OllamaAiResponse(structured.responseText(), metadata, false);
+            } finally {
+                bulkhead.release();
+            }
         } catch (Exception ex) {
             long latencyMs = elapsedMs(started);
             String failureReason = failureReason(ex);

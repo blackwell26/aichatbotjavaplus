@@ -329,15 +329,15 @@ Derived from:
 
 ## 26. Reliability and Resilience
 
-- [ ] Configure Resilience4j timeouts for downstream service calls.
-- [ ] Configure retry with backoff for transient failures.
-- [ ] Configure circuit breakers for e-commerce services.
-- [ ] Configure circuit breakers for Ollama.
-- [ ] Configure bulkheads for AI generation.
-- [ ] Implement fallback responses when AI is unavailable.
-- [ ] Implement fallback responses when vector search is unavailable.
-- [ ] Configure dead-letter handling for failed events.
-- [ ] Add resilience tests for timeout, retry, circuit breaker, and fallback behavior.
+- [x] Configure Resilience4j timeouts for downstream service calls.
+- [x] Configure retry with backoff for transient failures.
+- [x] Configure circuit breakers for e-commerce services.
+- [x] Configure circuit breakers for Ollama.
+- [x] Configure bulkheads for AI generation.
+- [x] Implement fallback responses when AI is unavailable.
+- [x] Implement fallback responses when vector search is unavailable.
+- [x] Configure dead-letter handling for failed events.
+- [x] Add resilience tests for timeout, retry, circuit breaker, and fallback behavior.
 
 ## 27. Performance
 

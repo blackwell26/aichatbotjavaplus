@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.lang.reflect.Field;
+import java.util.concurrent.Semaphore;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -119,6 +121,28 @@ class OllamaAiServiceTest {
         assertThatThrownBy(() -> service.generate(request("Explain returns")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Unsupported Ollama model");
+    }
+
+    @Test
+    void generate_returnsFallbackWhenBulkheadIsExhausted() throws Exception {
+        OllamaAiProperties properties = properties();
+        properties.setBulkheadMaxConcurrentCalls(1);
+        properties.setBulkheadMaxWaitDuration(Duration.ZERO);
+        OllamaAiService service = new OllamaAiService(prompt -> "unused", properties,
+                new AiSafetyService(new AiSafetyProperties()), new StructuredAiResponseParser(new com.fasterxml.jackson.databind.ObjectMapper()));
+
+        Field field = OllamaAiService.class.getDeclaredField("bulkhead");
+        field.setAccessible(true);
+        Semaphore semaphore = (Semaphore) field.get(service);
+        semaphore.acquire();
+        try {
+            OllamaAiResponse response = service.generate(request("Explain returns"));
+
+            assertThat(response.fallback()).isTrue();
+            assertThat(response.metadata().getFailureReason()).contains("bulkhead");
+        } finally {
+            semaphore.release();
+        }
     }
 
     private OllamaAiRequest request(String prompt) {

@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -63,11 +65,25 @@ public class MessagingConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, EventEnvelope> kafkaListenerContainerFactory(
-            ConsumerFactory<String, EventEnvelope> consumerFactory) {
+            ConsumerFactory<String, EventEnvelope> consumerFactory,
+            KafkaTemplate<String, Object> kafkaTemplate,
+            MessagingProperties properties) {
         ConcurrentKafkaListenerContainerFactory<String, EventEnvelope> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.setCommonErrorHandler(new DefaultErrorHandler(new FixedBackOff(1000L, 2L)));
+        factory.setCommonErrorHandler(kafkaErrorHandler(kafkaTemplate, properties));
         return factory;
+    }
+
+    @Bean
+    public CommonErrorHandler kafkaErrorHandler(KafkaTemplate<String, Object> kafkaTemplate,
+                                                MessagingProperties properties) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate,
+                (record, ex) -> new org.apache.kafka.common.TopicPartition(
+                        properties.getTopicPrefix() + record.topic() + ".dlt",
+                        Math.max(0, record.partition())));
+        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 2L));
+        handler.addNotRetryableExceptions(IllegalArgumentException.class);
+        return handler;
     }
 
     @Bean
@@ -89,11 +105,9 @@ public class MessagingConfig {
 
     private static NewTopic topic(MessagingProperties properties, String name, String dltName) {
         String topicName = properties.getTopicPrefix() + name;
-        String deadLetterName = properties.getTopicPrefix() + dltName;
         return org.springframework.kafka.config.TopicBuilder.name(topicName)
                 .partitions(1)
                 .replicas(1)
-                .configs(Map.of("dead-letter-topic", deadLetterName))
                 .build();
     }
 }

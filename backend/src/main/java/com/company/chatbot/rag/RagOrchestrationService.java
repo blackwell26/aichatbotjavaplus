@@ -56,41 +56,45 @@ public class RagOrchestrationService {
             return fallback(request, "RAG retrieval is disabled");
         }
 
-        String normalizedQuestion = normalize(request.question());
-        String authorizationScope = authorizationScope(request.customerContext());
-        String versionHash = knowledgeVersionHash();
-        String queryHash = cacheKey(normalizedQuestion, authorizationScope, versionHash);
+        try {
+            String normalizedQuestion = normalize(request.question());
+            String authorizationScope = authorizationScope(request.customerContext());
+            String versionHash = knowledgeVersionHash();
+            String queryHash = cacheKey(normalizedQuestion, authorizationScope, versionHash);
 
-        Optional<RagPromptContext> cached = readCache(queryHash, authorizationScope, versionHash);
-        if (cached.isPresent()) {
-            return cached.get();
-        }
+            Optional<RagPromptContext> cached = readCache(queryHash, authorizationScope, versionHash);
+            if (cached.isPresent()) {
+                return cached.get();
+            }
 
-        float[] queryEmbedding = embeddingGenerator.embed(normalizedQuestion);
-        List<RagRetrievedChunk> chunks = retrieveRankedChunks(queryEmbedding);
-        if (chunks.isEmpty()) {
+            float[] queryEmbedding = embeddingGenerator.embed(normalizedQuestion);
+            List<RagRetrievedChunk> chunks = retrieveRankedChunks(queryEmbedding);
+            if (chunks.isEmpty()) {
+                RagPromptContext context = new RagPromptContext(
+                        queryHash,
+                        buildPrompt(request, List.of()),
+                        List.of(),
+                        List.of(),
+                        false,
+                        true,
+                        "No relevant knowledge chunks met the similarity threshold");
+                writeCache(context, normalizedQuestion, authorizationScope, versionHash);
+                return context;
+            }
+
             RagPromptContext context = new RagPromptContext(
                     queryHash,
-                    buildPrompt(request, List.of()),
-                    List.of(),
-                    List.of(),
+                    buildPrompt(request, chunks),
+                    chunks,
+                    chunks.stream().map(RagRetrievedChunk::citation).toList(),
                     false,
-                    true,
-                    "No relevant knowledge chunks met the similarity threshold");
+                    false,
+                    null);
             writeCache(context, normalizedQuestion, authorizationScope, versionHash);
             return context;
+        } catch (RuntimeException ex) {
+            return fallback(request, "RAG retrieval failed: " + ex.getMessage());
         }
-
-        RagPromptContext context = new RagPromptContext(
-                queryHash,
-                buildPrompt(request, chunks),
-                chunks,
-                chunks.stream().map(RagRetrievedChunk::citation).toList(),
-                false,
-                false,
-                null);
-        writeCache(context, normalizedQuestion, authorizationScope, versionHash);
-        return context;
     }
 
     private List<RagRetrievedChunk> retrieveRankedChunks(float[] queryEmbedding) {
