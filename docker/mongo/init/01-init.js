@@ -8,7 +8,13 @@ if (!appDb.getUser("aichatbot")) {
   });
 }
 
-appDb.createCollection("chat_sessions");
-appDb.createCollection("chat_messages");
-appDb.createCollection("conversation_summaries");
-appDb.createCollection("ai_response_metadata");
+[
+  "chat_sessions",
+  "chat_messages",
+  "conversation_summaries",
+  "ai_response_metadata"
+].forEach((collectionName) => {
+  if (!appDb.getCollectionNames().includes(collectionName)) {
+    appDb.createCollection(collectionName);
+  }
+});
