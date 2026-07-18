@@ -1,0 +1,36 @@
+Use this on a Linux dev machine from the repo root.
+
+```bash
+# 1. Start infra
+docker compose up -d postgres mongo redis kafka ollama
+
+# 2. Wait for the services to be healthy
+docker compose ps
+
+# 3. Start the backend in local profile
+cd backend
+SPRING_PROFILES_ACTIVE=local mvn spring-boot:run
+```
+
+If you want the built JAR instead:
+
+```bash
+cd backend
+mvn -DskipTests clean package
+java -jar target/aichatbotjava-0.1.0-SNAPSHOT.jar --spring.profiles.active=local
+```
+
+Expected local service ports:
+- PostgreSQL: `5432`
+- MongoDB: `27017`
+- Redis: `6379`
+- Kafka: `9092`
+- Ollama: `11434`
+- Backend: `8080`
+
+A couple of practical notes:
+- Run from the repo root so the compose bind mounts resolve correctly.
+- If Mongo has an old persisted volume from a previous image version, recreate the volume or start with a fresh one before launching.
+- The backend local profile is wired to use the Docker services, not your host-installed databases.
+
+The backend README already contains the same flow in [backend/README.md](C:\_Dev\chatbot\aichatbotjava\backend\README.md:1).

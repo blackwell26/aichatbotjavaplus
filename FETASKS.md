@@ -198,3 +198,40 @@ Phase 4 — AI Chatbot: Implemented
 
   Modified: agent/agent.routes.ts — updated with breadcrumb data, confirmed conversations/:id path.
 
+
+Phase 6 is complete. Here's a summary:
+
+  New files created:
+
+  ┌──────────────────────────┬───────────────┬──────────────────────────────────────────────────────────────────────┐
+  │ Task                     │ File          │ Description                                                          │
+  ├──────────────────────────┼───────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ T6.1–T6.5                │ knowledge/mo │ Domain types: PublishStatus + transition map, EmbeddingStatus +       │
+  │                          │ dels/knowled │ in-progress list, DocumentType,                                       │
+  │                          │ ge.model.ts  │ KnowledgeDocumentSummary/Detail/Version, upload/transition DTOs,      │
+  │                          │              │ KnowledgeTestRequest/Result/RetrievedChunk                            │
+  ├──────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────┤
+  │ T6.1–T6.5                │ knowledge/se │ Full API service: list with filters, upload (multipart/form-data),    │
+  │                          │ rvices/knowl │ getDocument, transitionStatus, getEmbeddingStatus, reindex,           │
+  │                          │ edge.service │ getVersions, getVersion, archive, testQuery                           │
+  │                          │ .ts          │                                                                       │
+  ├──────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────┤
+  │ T6.1/T6.3/T6.4           │ pages/docume │ Document table with search + publish/embedding filters, pagination,   │
+  │                          │ nt-list/docu │ inline upload dialog with file picker + full metadata form            │
+  │                          │ ment-list.ts │                                                                       │
+  ├──────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────┤
+  │ T6.2/T6.3/T6.4/T6.8/T6.9 │ pages/docume │ Two-tab layout: Overview (metadata, content preview, tags), Version   │
+  │                          │ nt-detail/do │ history (list + inline preview drawer); sidebar: publish workflow     │
+  │                          │ cument-detai │ transitions, live embedding status with 4 s auto-poll + retry         │
+  │                          │ l.ts         │ reindex, archive with confirm                                         │
+  ├──────────────────────────┼──────────────┼───────────────────────────────────────────────────────────────────────┤
+  │ T6.5                     │ pages/knowle │ Query form (question, topK, model override), generated answer panel   │
+  │                          │ dge-test/kno │ (model + latency), expandable retrieved-chunk cards with scored       │
+  │                          │ wledge-test. │ progress bars and source document links                               │
+  │                          │ ts           │                                                                       │
+  └──────────────────────────┴──────────────┴───────────────────────────────────────────────────────────────────────┘
+
+  Updated: knowledge.routes.ts with breadcrumb data.
+
+  Build: ✅ Zero errors. Also fixed two pre-existing bugs in admin-manager-api.service.ts (wrong environment import
+
