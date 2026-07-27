@@ -361,16 +361,16 @@ Derived from:
 
 ## 29. Deployment Assets
 
-- [ ] Create backend Dockerfile with multi-stage Java build.
-- [ ] Create frontend Dockerfile if frontend source is part of this repository.
-- [ ] Wire backend container to Compose infrastructure services.
-- [ ] Create Kubernetes manifests or Helm chart for backend.
-- [ ] Create Kubernetes manifests or Helm chart for frontend.
-- [ ] Create Kubernetes manifests or Helm chart for worker processes if separated.
-- [ ] Configure readiness and liveness probes.
-- [ ] Configure resource requests and limits.
-- [ ] Configure secrets through Kubernetes secrets, sealed secrets, or external secret manager.
-- [ ] Document OpenShift deployment differences.
+- [x] Create backend Dockerfile with multi-stage Java build.
+- [x] Create frontend Dockerfile if frontend source is part of this repository.
+- [x] Wire backend container to Compose infrastructure services.
+- [x] Create Kubernetes manifests or Helm chart for backend.
+- [x] Create Kubernetes manifests or Helm chart for frontend.
+- [x] Create Kubernetes manifests or Helm chart for worker processes if separated.
+- [x] Configure readiness and liveness probes.
+- [x] Configure resource requests and limits.
+- [x] Configure secrets through Kubernetes secrets, sealed secrets, or external secret manager.
+- [x] Document OpenShift deployment differences.
 
 ## 30. Testing and Validation
 
