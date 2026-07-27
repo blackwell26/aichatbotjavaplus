@@ -18,6 +18,10 @@ This directory contains runnable validation entrypoints for the implementation t
 
 - `scripts/run-k6-load-test.ps1` runs a k6 smoke load test against the backend chat endpoint.
 
+## Linux Runbook
+
+- `scripts/run-linux-runbook.sh` starts the local stack on Linux and can also launch the `dev` profile with `--dev`.
+
 ## Suggested order
 
 1. Start the local stack with `docker-compose.yml`.
