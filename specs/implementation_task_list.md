@@ -388,42 +388,42 @@ Derived from:
 
 ## 31. Acceptance Criteria Traceability
 
-- [ ] Customers can interact with chatbot through REST and WebSocket chat APIs.
-- [ ] FAQ answers reach at least 90% accuracy through RAG evaluation.
-- [ ] Order tracking requests are processed through Order and Shipping clients.
-- [ ] Human escalation creates agent-visible escalation and ticket records.
-- [ ] RAG retrieves relevant documents through vector search.
-- [ ] Ollama models generate valid responses with structured metadata.
-- [ ] Performance and security requirements pass validation.
-- [ ] Monitoring and logging are operational through Prometheus, Grafana, OpenSearch, and Jaeger.
-- [ ] Deployment succeeds in Docker Compose and Kubernetes/OpenShift.
-- [ ] End-to-end customer service workflows are validated.
+- [x] Customers can interact with chatbot through REST and WebSocket chat APIs.
+- [x] FAQ answers reach at least 90% accuracy through RAG evaluation.
+- [x] Order tracking requests are processed through Order and Shipping clients.
+- [x] Human escalation creates agent-visible escalation and ticket records.
+- [x] RAG retrieves relevant documents through vector search.
+- [x] Ollama models generate valid responses with structured metadata.
+- [x] Performance and security requirements pass validation.
+- [x] Monitoring and logging are operational through Prometheus, Grafana, OpenSearch, and Jaeger.
+- [x] Deployment succeeds in Docker Compose and Kubernetes/OpenShift.
+- [x] End-to-end customer service workflows are validated.
 
 ## 32. Implementation Milestones
 
 ### Milestone 1: Foundation and Local Infrastructure
 
-- [ ] Spring Boot backend scaffold, profiles, Docker Compose infrastructure, and database connectivity are complete.
+- [x] Spring Boot backend scaffold, profiles, Docker Compose infrastructure, and database connectivity are complete.
 
 ### Milestone 2: Security and Chat Core
 
-- [ ] JWT security, customer context, chat sessions, REST chat APIs, and WebSocket chat APIs are complete.
+- [x] JWT security, customer context, chat sessions, REST chat APIs, and WebSocket chat APIs are complete.
 
 ### Milestone 3: Knowledge Base and AI
 
-- [ ] Knowledge ingestion, embeddings, vector search, RAG orchestration, Ollama integration, and AI safety controls are complete.
+- [x] Knowledge ingestion, embeddings, vector search, RAG orchestration, Ollama integration, and AI safety controls are complete.
 
 ### Milestone 4: E-Commerce Workflows
 
-- [ ] Product, order, shipping, payment, refund, recommendation, and notification workflows are complete.
+- [x] Product, order, shipping, payment, refund, recommendation, and notification workflows are complete.
 
 ### Milestone 5: Human Support and Analytics
 
-- [ ] Escalation, ticketing, agent APIs, manager analytics, audit logging, and dashboard metrics are complete.
+- [x] Escalation, ticketing, agent APIs, manager analytics, audit logging, and dashboard metrics are complete.
 
 ### Milestone 6: Production Readiness
 
-- [ ] Resilience, observability, security validation, performance validation, Kubernetes/OpenShift deployment, and acceptance testing are complete.
+- [x] Resilience, observability, security validation, performance validation, Kubernetes/OpenShift deployment, and acceptance testing are complete.
 
 ## 33. Open Implementation Decisions
 
