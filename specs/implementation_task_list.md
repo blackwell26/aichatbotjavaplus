@@ -341,14 +341,14 @@ Derived from:
 
 ## 27. Performance
 
-- [ ] Validate simple FAQ response time under 2 seconds.
-- [ ] Validate order inquiry response time under 3 seconds.
-- [ ] Validate AI-generated response time under 5 seconds.
-- [ ] Implement WebSocket streaming for generated responses.
-- [ ] Cache frequent safe FAQ and RAG retrieval results.
-- [ ] Precompute embeddings during ingestion.
-- [ ] Configure prompt size limits.
-- [ ] Add load tests for concurrency assumptions.
+- [x] Validate simple FAQ response time under 2 seconds.
+- [x] Validate order inquiry response time under 3 seconds.
+- [x] Validate AI-generated response time under 5 seconds.
+- [x] Implement WebSocket streaming for generated responses.
+- [x] Cache frequent safe FAQ and RAG retrieval results.
+- [x] Precompute embeddings during ingestion.
+- [x] Configure prompt size limits.
+- [x] Add load tests for concurrency assumptions.
 
 ## 28. Admin and Manager APIs
 
