@@ -374,17 +374,17 @@ Derived from:
 
 ## 30. Testing and Validation
 
-- [ ] Add JUnit 5 unit tests for domain logic.
-- [ ] Add Mockito tests for service layer dependencies.
-- [ ] Add Spring Boot controller tests for REST endpoints.
-- [ ] Add WebSocket integration tests.
-- [ ] Add Testcontainers tests for PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ if enabled.
-- [ ] Add integration tests for Ollama adapter using stub or local runtime.
-- [ ] Add contract tests for e-commerce clients.
-- [ ] Add security tests for JWT, RBAC, ownership validation, and input validation.
-- [ ] Add end-to-end tests for FAQ, order tracking, refund request, and escalation workflows.
-- [ ] Add OWASP ZAP baseline security scan.
-- [ ] Add Gatling or k6 performance tests.
+- [x] Add JUnit 5 unit tests for domain logic.
+- [x] Add Mockito tests for service layer dependencies.
+- [x] Add Spring Boot controller tests for REST endpoints.
+- [x] Add WebSocket integration tests.
+- [x] Add Testcontainers tests for PostgreSQL, MongoDB, Redis, Kafka, and RabbitMQ if enabled.
+- [x] Add integration tests for Ollama adapter using stub or local runtime.
+- [x] Add contract tests for e-commerce clients.
+- [x] Add security tests for JWT, RBAC, ownership validation, and input validation.
+- [x] Add end-to-end tests for FAQ, order tracking, refund request, and escalation workflows.
+- [x] Add OWASP ZAP baseline security scan.
+- [x] Add Gatling or k6 performance tests.
 
 ## 31. Acceptance Criteria Traceability
 
