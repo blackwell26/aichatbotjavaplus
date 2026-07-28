@@ -235,3 +235,78 @@ Phase 6 is complete. Here's a summary:
 
   Build: ✅ Zero errors. Also fixed two pre-existing bugs in admin-manager-api.service.ts (wrong environment import
 
+
+  Phase 7 is fully implemented. Here's a summary of what was built:
+
+  ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Phase 7 – Administration: Complete
+
+  New files created
+
+  features/admin/models/admin.model.ts
+
+  Domain models for all 6 tasks: AdminUser, RoleSummary, PromptVersionDetail, AiModelConfig, FeatureToggle, AuditLogEntry, plus all associated
+  request/filter types and label maps.
+
+  features/admin/services/admin.service.ts
+
+  REST client covering every API call: user CRUD, role assignment/revocation, prompt version lifecycle (create, activate, rollback), AI config (get/put +
+  list available models), feature toggle updates, and paginated/filtered audit log queries.
+
+  6 page components (all replaced stub implementations):
+
+  ┌────────────────────┬────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Page               │ Route                  │ Capability                                                                                           │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ users.ts           │ /admin/users           │ T7.1 — List + search users; create user; view/edit profile; activate/deactivate                      │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ roles.ts           │ /admin/roles           │ T7.2 — Role summary cards; browse users per role; assign/revoke roles                                │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ prompt-config.ts   │ /admin/prompt-config   │ T7.3 — List/filter prompts; create draft; activate version; rollback; view template + history        │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ ai-config.ts       │ /admin/ai-config       │ T7.4 — Configure Ollama endpoint, models, timeout, temperature, streaming                            │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ feature-toggles.ts │ /admin/feature-toggles │ T7.5 — Toggle cards with animated switches for all 9 chatbot features                                │
+  ├────────────────────┼────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+  │ audit-logs.ts      │ /admin/audit-logs      │ T7.6 — Paginated log table; filter by event type, severity, actor, date range; expandable change     │
+  │                    │                        │ details                                                                                              │
+  └────────────────────┴────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  All routes were already wired in admin.routes.ts. The build passes with zero TypeScript errors and no Phase 7 warnings.
+
+
+  Phase 8 — API Integration is implemented. Build succeeds.
+
+  T8.1 API Gateway client
+
+  • ApiGatewayService — versioned URL builder (environment.apiBaseUrl + path segments)
+  • ApiErrorService + apiErrorInterceptor — maps backend errors to user-friendly messages (WEB-API-004)
+  • retryInterceptor — retries idempotent GET/HEAD/OPTIONS/PUT/DELETE on transient failures (WEB-API-005)
+  • Auth interceptor updated for gateway URL detection + correlation ID (WEB-API-003)
+  • Domain services updated to use the gateway (no more doubled /api/v1/api/v1/...)
+
+  T8.2–T8.6 Domain APIs
+
+  ┌──────┬─────────────────┬─────────────────────────────────────────────────────────────┐
+  │ Task │ Service         │ Endpoints                                                   │
+  ├──────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+  │ T8.2 │ ProductService  │ list, search, detail, pricing, specs, inventory             │
+  ├──────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+  │ T8.3 │ OrderService    │ list, detail, place, cancel, tracking, returns, eligibility │
+  ├──────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+  │ T8.4 │ PaymentService  │ tokenize, saved methods, charge, verify, refund             │
+  ├──────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+  │ T8.5 │ ShippingService │ rates, tracking, delivery estimate, carrier status          │
+  ├──────┼─────────────────┼─────────────────────────────────────────────────────────────┤
+  │ T8.6 │ TicketService   │ CRUD, comments, escalate, link conversation                 │
+  └──────┴─────────────────┴─────────────────────────────────────────────────────────────┘
+
+  Wired consumers
+
+  • Checkout — tokenise card → place order with idempotency key (no raw card on order request)
+  • Order detail — loads live tracking when shipment data is missing
+
+
+
+
