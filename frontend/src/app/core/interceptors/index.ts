@@ -1,2 +1,3 @@
-// placeholder — exports will be added in subsequent phases
-export {};
+export { authInterceptor } from './auth.interceptor';
+export { apiErrorInterceptor } from './api-error.interceptor';
+export { retryInterceptor } from './retry.interceptor';

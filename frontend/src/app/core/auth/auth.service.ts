@@ -5,6 +5,7 @@ import { Observable, Subscription, catchError, tap, throwError, timer } from 'rx
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.model';
 import { Role, User } from '../models/user.model';
+import { ApiGatewayService } from '../services/api-gateway.service';
 import { TokenStorageService } from './token-storage.service';
 
 export interface LoginRequest {
@@ -52,8 +53,9 @@ export class AuthService implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly gateway = inject(ApiGatewayService);
 
-  private readonly apiBase = environment.apiBaseUrl;
+  private readonly apiBase = this.gateway.baseUrl;
   private readonly cfg = environment.auth;
 
   // ── State signals ─────────────────────────────────────────────────────────

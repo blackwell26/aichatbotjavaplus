@@ -3,7 +3,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter, withComponentInputBinding, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-import { authInterceptor } from './core/interceptors/auth.interceptor';
+import {
+  apiErrorInterceptor,
+  authInterceptor,
+  retryInterceptor,
+} from './core/interceptors';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +20,8 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(
       withFetch(),
-      withInterceptors([authInterceptor])
+      // Order: auth (headers) → retry (idempotent) → error mapping (last)
+      withInterceptors([authInterceptor, retryInterceptor, apiErrorInterceptor])
     ),
   ],
 };

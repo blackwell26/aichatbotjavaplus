@@ -18,6 +18,7 @@ import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../core/models/api.model';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
+import { ApiGatewayService } from '../../../core/services/api-gateway.service';
 import {
   ChatHistoryResponse,
   ChatMessage,
@@ -55,9 +56,10 @@ import {
 export class ChatService implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly tokenStorage = inject(TokenStorageService);
+  private readonly gateway = inject(ApiGatewayService);
 
-  private readonly apiBase = `${environment.apiBaseUrl}/chat/sessions`;
-  private readonly wsBase = environment.wsBaseUrl;
+  private readonly apiBase = this.gateway.url('chat', 'sessions');
+  private readonly wsBase = this.gateway.wsBaseUrl;
 
   // ── State ─────────────────────────────────────────────────────────────────
 
@@ -237,10 +239,9 @@ export class ChatService implements OnDestroy {
     page = 0,
     pageSize = 20
   ): Observable<ApiResponse<ChatSessionSummary[]>> {
-    return this.http.get<ApiResponse<ChatSessionSummary[]>>(
-      `${environment.apiBaseUrl}/chat/sessions`,
-      { params: { page: String(page), pageSize: String(pageSize) } }
-    );
+    return this.http.get<ApiResponse<ChatSessionSummary[]>>(this.apiBase, {
+      params: { page: String(page), pageSize: String(pageSize) },
+    });
   }
 
   // ── REST: escalation (T4.8) ───────────────────────────────────────────────

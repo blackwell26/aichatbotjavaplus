@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { ApiGatewayService } from './api-gateway.service';
 
 export interface KnowledgeDocumentSummary {
   id: number;
@@ -59,45 +59,56 @@ export interface AnalyticsSnapshot {
 @Injectable({ providedIn: 'root' })
 export class AdminManagerApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiBaseUrl;
+  private readonly gateway = inject(ApiGatewayService);
 
   listKnowledgeDocuments(): Observable<KnowledgeDocumentSummary[]> {
-    return this.http.get<KnowledgeDocumentSummary[]>(`${this.baseUrl}/api/v1/admin/knowledge/documents`);
+    return this.http.get<KnowledgeDocumentSummary[]>(
+      this.gateway.url('admin', 'knowledge', 'documents')
+    );
   }
 
   getKnowledgeDocument(documentId: number): Observable<KnowledgeDocumentDetail> {
-    return this.http.get<KnowledgeDocumentDetail>(`${this.baseUrl}/api/v1/admin/knowledge/documents/${documentId}`);
+    return this.http.get<KnowledgeDocumentDetail>(
+      this.gateway.url('admin', 'knowledge', 'documents', documentId)
+    );
   }
 
   uploadKnowledgeDocument(file: File, sourceType: string): Observable<KnowledgeIngestionResult> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('sourceType', sourceType);
-    return this.http.post<KnowledgeIngestionResult>(`${this.baseUrl}/api/v1/admin/knowledge/documents`, formData);
+    return this.http.post<KnowledgeIngestionResult>(
+      this.gateway.url('admin', 'knowledge', 'documents'),
+      formData
+    );
   }
 
   replaceKnowledgeDocument(documentId: number, file: File): Observable<KnowledgeIngestionResult> {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<KnowledgeIngestionResult>(
-      `${this.baseUrl}/api/v1/admin/knowledge/documents/${documentId}/replace`,
+      this.gateway.url('admin', 'knowledge', 'documents', documentId, 'replace'),
       formData
     );
   }
 
   getIngestionJob(jobId: string): Observable<KnowledgeIngestionJob> {
-    return this.http.get<KnowledgeIngestionJob>(`${this.baseUrl}/api/v1/admin/knowledge/ingestion/${jobId}`);
+    return this.http.get<KnowledgeIngestionJob>(
+      this.gateway.url('admin', 'knowledge', 'ingestion', jobId)
+    );
   }
 
   getManagerAnalytics(periodStart: string, periodEnd: string): Observable<AnalyticsSnapshot> {
-    return this.http.get<AnalyticsSnapshot>(`${this.baseUrl}/api/v1/manager/analytics`, {
+    return this.http.get<AnalyticsSnapshot>(this.gateway.url('manager', 'analytics'), {
       params: { periodStart, periodEnd },
     });
   }
 
   recordManagerAnalytics(periodStart: string, periodEnd: string): Observable<AnalyticsSnapshot> {
-    return this.http.post<AnalyticsSnapshot>(`${this.baseUrl}/api/v1/manager/analytics/snapshots`, null, {
-      params: { periodStart, periodEnd },
-    });
+    return this.http.post<AnalyticsSnapshot>(
+      this.gateway.url('manager', 'analytics', 'snapshots'),
+      null,
+      { params: { periodStart, periodEnd } }
+    );
   }
 }

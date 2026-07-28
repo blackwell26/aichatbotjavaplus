@@ -7,14 +7,14 @@ import {
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
-import { environment } from '../../../environments/environment';
 import { TokenStorageService } from '../auth/token-storage.service';
+import { ApiGatewayService } from '../services/api-gateway.service';
 
 /**
  * Functional HTTP interceptor (Angular 15+ style).
  *
  * Responsibilities:
- *  1. Attach the Bearer access token to every request targeting our API.
+ *  1. Attach the Bearer access token to every request targeting our API gateway.
  *  2. Forward a correlation ID header for distributed tracing (WEB-API-003).
  *  3. Handle 401 responses by redirecting to /auth/login.
  *
@@ -27,9 +27,10 @@ export const authInterceptor: HttpInterceptorFn = (
 ) => {
   const tokenStorage = inject(TokenStorageService);
   const router = inject(Router);
+  const gateway = inject(ApiGatewayService);
 
   // Only attach auth headers to our own API — never to third-party CDNs, etc.
-  if (!req.url.startsWith(environment.apiBaseUrl)) {
+  if (!gateway.isGatewayUrl(req.url)) {
     return next(req);
   }
 
@@ -45,8 +46,15 @@ export const authInterceptor: HttpInterceptorFn = (
   });
 
   return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status === 401) {
+    catchError((error: unknown) => {
+      const status =
+        error instanceof HttpErrorResponse
+          ? error.status
+          : error && typeof error === 'object' && 'status' in error
+            ? Number((error as { status: number }).status)
+            : undefined;
+
+      if (status === 401) {
         // Token is invalid or expired — redirect to login
         router.navigate(['/auth/login'], {
           queryParams: { returnUrl: router.url },

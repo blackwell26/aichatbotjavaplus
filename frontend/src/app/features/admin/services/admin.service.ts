@@ -13,9 +13,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { ApiResponse, PagedResponse } from '../../../core/models/api.model';
 import { Role } from '../../../core/models/user.model';
+import { ApiGatewayService } from '../../../core/services/api-gateway.service';
 import {
   AdminUser,
   AdminUserSummary,
@@ -42,8 +42,9 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
+  private readonly gateway = inject(ApiGatewayService);
 
-  private readonly base = `${environment.apiBaseUrl}/api/v1/admin`;
+  private readonly base = this.gateway.url('admin');
   private readonly usersBase = `${this.base}/users`;
   private readonly promptsBase = `${this.base}/prompts`;
   private readonly configBase = `${this.base}/config`;

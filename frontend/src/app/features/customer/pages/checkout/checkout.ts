@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,7 +11,12 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { HttpErrorResponse } from '@angular/common/http';
+import { switchMap } from 'rxjs';
+import { PlaceOrderRequest } from '../../../../core/models/api.model';
 import { CartService } from '../../services/cart.service';
+import { OrderService } from '../../services/order.service';
+import { PaymentService } from '../../services/payment.service';
 
 type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
 
@@ -166,7 +171,7 @@ type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
                 >
                   <p class="secure-notice">
                     <mat-icon aria-hidden="true">lock</mat-icon>
-                    Payments are encrypted and secure.
+                    Payments are encrypted and secure. Card details are tokenised — never stored.
                   </p>
 
                   <mat-form-field appearance="outline" class="full-width">
@@ -565,8 +570,12 @@ type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
 })
 export class CheckoutComponent {
   private readonly cartSvc = inject(CartService);
-  private readonly router = inject(Router);
+  private readonly orderSvc = inject(OrderService);
+  private readonly paymentSvc = inject(PaymentService);
   private readonly fb = inject(FormBuilder);
+
+  /** Stable idempotency key for this checkout attempt (regenerated after success). */
+  private idempotencyKey = crypto.randomUUID();
 
   protected readonly cart = this.cartSvc.cart;
   protected readonly cartIsEmpty = () => this.cartSvc.items().length === 0;
@@ -604,8 +613,8 @@ export class CheckoutComponent {
   });
 
   protected maskedCard(): string {
-    const num = this.paymentForm.controls.cardNumber.value;
-    return num ? num.slice(-4).padStart(num.length, '•') : '••••';
+    const num = this.paymentForm.controls.cardNumber.value.replace(/\s/g, '');
+    return num ? num.slice(-4) : '••••';
   }
 
   protected goToPayment(): void {
@@ -626,18 +635,74 @@ export class CheckoutComponent {
     this.stepIndex.set(2);
   }
 
+  /**
+   * T8.3 + T8.4 — tokenise card via Payment API, then place order via Order API.
+   * Raw card data is never sent on the place-order request.
+   */
   protected placeOrder(): void {
+    if (this.addressForm.invalid || this.paymentForm.invalid) {
+      this.addressForm.markAllAsTouched();
+      this.paymentForm.markAllAsTouched();
+      return;
+    }
+
     this.placingOrder.set(true);
     this.placeOrderError.set(null);
 
-    // Simulate API call — in production this would call an OrderService.placeOrder()
-    setTimeout(() => {
-      const orderNum = `ORD-${Date.now().toString(36).toUpperCase()}`;
-      this.confirmedOrderNumber.set(orderNum);
-      this.cartSvc.clearCart();
-      this.currentStep.set('confirmed');
-      this.stepIndex.set(3);
-      this.placingOrder.set(false);
-    }, 1500);
+    const card = this.paymentForm.getRawValue();
+    const address = this.addressForm.getRawValue();
+    const cart = this.cart();
+
+    this.paymentSvc
+      .tokenizeCard({
+        cardholderName: card.cardName,
+        cardNumber: card.cardNumber.replace(/\s/g, ''),
+        expiry: card.expiry,
+        cvv: card.cvv,
+      })
+      .pipe(
+        switchMap((tokenRes) => {
+          // Clear sensitive fields from the form as soon as we have a token.
+          this.paymentForm.patchValue({ cardNumber: '', cvv: '' });
+
+          const payload: PlaceOrderRequest = {
+            items: cart.items.map((i) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+            })),
+            shippingAddress: {
+              fullName: address.fullName,
+              line1: address.line1,
+              line2: address.line2 || undefined,
+              city: address.city,
+              state: address.state,
+              postalCode: address.postalCode,
+              country: address.country,
+            },
+            paymentMethodId: tokenRes.data.paymentMethodId,
+            idempotencyKey: this.idempotencyKey,
+          };
+
+          return this.orderSvc.placeOrder(payload);
+        })
+      )
+      .subscribe({
+        next: (res) => {
+          this.confirmedOrderNumber.set(res.data.orderNumber);
+          this.cartSvc.clearCart();
+          this.currentStep.set('confirmed');
+          this.stepIndex.set(3);
+          this.placingOrder.set(false);
+          this.idempotencyKey = crypto.randomUUID();
+        },
+        error: (err: unknown) => {
+          let msg = 'Could not place your order. Please try again.';
+          if (err instanceof HttpErrorResponse) {
+            msg = err.error?.message ?? msg;
+          }
+          this.placeOrderError.set(msg);
+          this.placingOrder.set(false);
+        },
+      });
   }
 }

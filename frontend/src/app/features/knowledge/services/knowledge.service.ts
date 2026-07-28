@@ -15,8 +15,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { ApiResponse, PagedResponse } from '../../../core/models/api.model';
+import { ApiGatewayService } from '../../../core/services/api-gateway.service';
 import {
   DocumentListFilter,
   KnowledgeDocumentDetail,
@@ -31,7 +31,8 @@ import {
 @Injectable({ providedIn: 'root' })
 export class KnowledgeService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${environment.apiBaseUrl}/api/v1/knowledge/documents`;
+  private readonly gateway = inject(ApiGatewayService);
+  private readonly base = this.gateway.url('knowledge', 'documents');
 
   // ── Document listing ──────────────────────────────────────────────────────
 
@@ -168,7 +169,7 @@ export class KnowledgeService {
    */
   testQuery(payload: KnowledgeTestRequest): Observable<ApiResponse<KnowledgeTestResult>> {
     return this.http.post<ApiResponse<KnowledgeTestResult>>(
-      `${environment.apiBaseUrl}/api/v1/knowledge/test`,
+      this.gateway.url('knowledge', 'test'),
       payload
     );
   }

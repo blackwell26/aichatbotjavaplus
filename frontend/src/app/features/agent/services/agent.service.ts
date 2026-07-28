@@ -11,8 +11,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { ApiResponse, PagedResponse } from '../../../core/models/api.model';
+import { ApiGatewayService } from '../../../core/services/api-gateway.service';
 import {
   AddAgentCommentRequest,
   AgentConversation,
@@ -30,8 +30,9 @@ import {
 @Injectable({ providedIn: 'root' })
 export class AgentService {
   private readonly http = inject(HttpClient);
+  private readonly gateway = inject(ApiGatewayService);
 
-  private readonly agentBase = `${environment.apiBaseUrl}/api/v1/agent`;
+  private readonly agentBase = this.gateway.url('agent');
   private readonly escalationsBase = `${this.agentBase}/escalations`;
   private readonly ticketsBase = `${this.agentBase}/tickets`;
 

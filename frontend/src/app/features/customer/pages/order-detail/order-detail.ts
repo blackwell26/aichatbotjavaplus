@@ -604,6 +604,17 @@ export class OrderDetailComponent implements OnInit {
       next: (res) => {
         this.order.set(res.data);
         this.loading.set(false);
+        // T8.3 / T8.5 — enrich with live tracking when the order payload omits it
+        if (!res.data.shipment) {
+          this.orderSvc.getTracking(id).subscribe({
+            next: (tracking) => {
+              this.order.update((o) => (o ? { ...o, shipment: tracking.data } : o));
+            },
+            error: () => {
+              /* tracking is optional */
+            },
+          });
+        }
       },
       error: () => {
         this.error.set('This order could not be loaded.');
