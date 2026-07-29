@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-prometheus-rules
+  namespace: aichatbot
+  labels:
+    app: aichatbot-frontend
+    component: monitoring
+data:
+  frontend.rules: |
+    groups:
+      - name: frontend_alerts
+        interval: 30s
+        rules:
+          # High error rate
+          - alert: FrontendHighErrorRate
+            expr: |
+              (
+                sum(rate(nginx_http_requests_total{status=~"5.."}[5m]))
+                /
+                sum(rate(nginx_http_requests_total[5m]))
+              ) > 0.05
+            for: 5m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "High error rate detected"
+              description: "Frontend error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          
+          # High response time
+          - alert: FrontendHighResponseTime
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(nginx_http_request_duration_seconds_bucket[5m])) by (le)
+              ) > 1
+            for: 5m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "High response time detected"
+              description: "95th percentile response time is {{ $value }}s (threshold: 1s)"
+          
+          # Pod not ready
+          - alert: FrontendPodNotReady
+            expr: |
+              kube_pod_status_ready{
+                namespace="aichatbot",
+                pod=~"aichatbot-frontend-.*",
+                condition="true"
+              } == 0
+            for: 5m
+            labels:
+              severity: critical
+              component: frontend
+            annotations:
+              summary: "Frontend pod not ready"
+              description: "Pod {{ $labels.pod }} has been not ready for 5 minutes"
+          
+          # High memory usage
+          - alert: FrontendHighMemoryUsage
+            expr: |
+              (
+                container_memory_working_set_bytes{
+                  namespace="aichatbot",
+                  pod=~"aichatbot-frontend-.*"
+                }
+                /
+                container_spec_memory_limit_bytes{
+                  namespace="aichatbot",
+                  pod=~"aichatbot-frontend-.*"
+                }
+              ) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "High memory usage"
+              description: "Pod {{ $labels.pod }} memory usage is {{ $value | humanizePercentage }}"
+          
+          # High CPU usage
+          - alert: FrontendHighCPUUsage
+            expr: |
+              (
+                rate(container_cpu_usage_seconds_total{
+                  namespace="aichatbot",
+                  pod=~"aichatbot-frontend-.*"
+                }[5m])
+                /
+                container_spec_cpu_quota{
+                  namespace="aichatbot",
+                  pod=~"aichatbot-frontend-.*"
+                }
+              ) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "High CPU usage"
+              description: "Pod {{ $labels.pod }} CPU usage is {{ $value | humanizePercentage }}"
+          
+          # Deployment replica mismatch
+          - alert: FrontendReplicaMismatch
+            expr: |
+              kube_deployment_spec_replicas{
+                namespace="aichatbot",
+                deployment="aichatbot-frontend"
+              }
+              !=
+              kube_deployment_status_replicas_available{
+                namespace="aichatbot",
+                deployment="aichatbot-frontend"
+              }
+            for: 10m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "Deployment replica mismatch"
+              description: "Desired replicas: {{ $labels.spec_replicas }}, Available: {{ $labels.status_replicas_available }}"
+          
+          # Container restart rate
+          - alert: FrontendHighRestartRate
+            expr: |
+              rate(kube_pod_container_status_restarts_total{
+                namespace="aichatbot",
+                pod=~"aichatbot-frontend-.*"
+              }[15m]) > 0
+            for: 5m
+            labels:
+              severity: warning
+              component: frontend
+            annotations:
+              summary: "High container restart rate"
+              description: "Pod {{ $labels.pod }} is restarting frequently"

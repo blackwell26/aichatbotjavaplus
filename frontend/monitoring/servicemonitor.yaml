@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: aichatbot-frontend
+  namespace: aichatbot
+  labels:
+    app: aichatbot-frontend
+    component: frontend
+    prometheus: kube-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: aichatbot-frontend
+      component: frontend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - aichatbot

@@ -3,38 +3,89 @@ kind: Deployment
 metadata:
   name: aichatbot-frontend
   namespace: aichatbot
+  labels:
+    app: aichatbot-frontend
+    component: frontend
+    version: v1
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: aichatbot-frontend
+      component: frontend
   template:
     metadata:
       labels:
         app: aichatbot-frontend
+        component: frontend
+        version: v1
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: frontend
           image: aichatbot/frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 80
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: aichatbot-config
+                  key: api.base.url
+            - name: WS_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: aichatbot-config
+                  key: ws.base.url
           readinessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: http
+              scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 6
+            successThreshold: 1
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /health
-              port: 80
-            initialDelaySeconds: 20
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
             periodSeconds: 15
             timeoutSeconds: 5
+            successThreshold: 1
             failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 12
           resources:
             requests:
               cpu: 100m
@@ -42,3 +93,34 @@ spec:
             limits:
               cpu: 500m
               memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 101
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: cache
+              mountPath: /var/cache/nginx
+            - name: run
+              mountPath: /var/run
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - aichatbot-frontend
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 30

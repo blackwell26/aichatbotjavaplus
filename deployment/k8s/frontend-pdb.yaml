@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: aichatbot-frontend
+  namespace: aichatbot
+  labels:
+    app: aichatbot-frontend
+    component: frontend
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: aichatbot-frontend
+      component: frontend
+  unhealthyPodEvictionPolicy: AlwaysAllow

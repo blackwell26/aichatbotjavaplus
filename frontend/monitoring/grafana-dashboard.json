@@ -1,0 +1,112 @@
+{
+  "dashboard": {
+    "title": "Frontend Monitoring Dashboard",
+    "tags": ["frontend", "nginx", "kubernetes"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(nginx_http_requests_total{namespace=\"aichatbot\"}[5m])) by (status)",
+            "legendFormat": "{{status}}"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Response Time (95th percentile)",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(nginx_http_request_duration_seconds_bucket{namespace=\"aichatbot\"}[5m])) by (le))",
+            "legendFormat": "p95"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(nginx_http_requests_total{namespace=\"aichatbot\",status=~\"5..\"}[5m])) / sum(rate(nginx_http_requests_total{namespace=\"aichatbot\"}[5m]))",
+            "legendFormat": "Error Rate"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Pod Status",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(kube_pod_status_ready{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\",condition=\"true\"})",
+            "legendFormat": "Ready Pods"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(container_memory_working_set_bytes{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\"}) by (pod)",
+            "legendFormat": "{{pod}}"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "CPU Usage",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\"}[5m])) by (pod)",
+            "legendFormat": "{{pod}}"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Network Traffic",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(rate(container_network_receive_bytes_total{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\"}[5m])) by (pod)",
+            "legendFormat": "RX {{pod}}"
+          },
+          {
+            "expr": "sum(rate(container_network_transmit_bytes_total{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\"}[5m])) by (pod)",
+            "legendFormat": "TX {{pod}}"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Container Restarts",
+        "type": "graph",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"aichatbot\",pod=~\"aichatbot-frontend-.*\"}) by (pod)",
+            "legendFormat": "{{pod}}"
+          }
+        ]
+      }
+    ]
+  }
+}

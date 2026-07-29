@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+.angular/
+coverage/
+playwright-report/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Testing
+e2e/
+*.spec.ts
+*.test.ts
+
+# Documentation
+*.md
+!README.md
+
+# CI/CD
+.github/
+.husky/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
