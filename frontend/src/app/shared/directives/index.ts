@@ -1,2 +1,4 @@
-// placeholder — exports will be added in subsequent phases
-export {};
+export {
+  HasAnyRoleDirective,
+  HasRoleDirective,
+} from './has-role.directive';

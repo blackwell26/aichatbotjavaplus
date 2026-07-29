@@ -1,2 +1,2 @@
-// placeholder — exports will be added in subsequent phases
-export {};
+export { SafeTextPipe } from './safe-text.pipe';
+export { MaskSensitivePipe } from './mask-sensitive.pipe';

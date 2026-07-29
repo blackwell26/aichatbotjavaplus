@@ -19,6 +19,7 @@ import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../core/models/api.model';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { ApiGatewayService } from '../../../core/services/api-gateway.service';
+import { sanitizeUserText } from '../../../shared/security/sanitize';
 import {
   ChatHistoryResponse,
   ChatMessage,
@@ -179,6 +180,10 @@ export class ChatService implements OnDestroy {
     const sid = this.sessionId();
     if (!sid) return EMPTY;
 
+    // T9.1 — strip HTML / control chars before optimistic UI + API send
+    const safeContent = sanitizeUserText(content, 4000);
+    if (!safeContent) return EMPTY;
+
     this._sending.set(true);
     this._error.set(null);
 
@@ -187,15 +192,15 @@ export class ChatService implements OnDestroy {
       messageId: `local-${Date.now()}`,
       sessionId: sid,
       senderType: 'CUSTOMER',
-      content,
+      content: safeContent,
       timestamp: new Date().toISOString(),
     };
     this._messages.update((msgs) => [...msgs, optimisticMsg]);
 
     if (environment.features.streamingEnabled && this.stompClient?.connected) {
-      return this.sendViaWebSocket(sid, content);
+      return this.sendViaWebSocket(sid, safeContent);
     }
-    return this.sendViaRest(sid, content);
+    return this.sendViaRest(sid, safeContent);
   }
 
   /**
@@ -334,14 +339,16 @@ export class ChatService implements OnDestroy {
     switch (event.eventType) {
       case 'MESSAGE':
         if (event.message) {
+          const safeMessage: ChatMessage = {
+            ...event.message,
+            content: sanitizeUserText(event.message.content, 20_000),
+          };
           // Replace any optimistic placeholder then add the AI reply
           this._messages.update((msgs) => {
             const withoutOptimistic = msgs.filter(
               (m) => !m.messageId.startsWith('local-')
             );
-            return event.message
-              ? [...withoutOptimistic, event.message]
-              : withoutOptimistic;
+            return [...withoutOptimistic, safeMessage];
           });
           this._sending.set(false);
         }
@@ -349,7 +356,8 @@ export class ChatService implements OnDestroy {
 
       case 'STREAM_CHUNK':
         // Accumulate streaming chunks into a transient AI message
-        if (event.chunk != null) {
+        if (event.chunk !== null && event.chunk !== undefined) {
+          const chunk = sanitizeUserText(event.chunk, 4000);
           this._messages.update((msgs) => {
             const streaming = msgs.find(
               (m) => m.streaming && m.messageId === event.messageId
@@ -357,7 +365,7 @@ export class ChatService implements OnDestroy {
             if (streaming) {
               return msgs.map((m) =>
                 m.messageId === event.messageId
-                  ? { ...m, content: m.content + event.chunk }
+                  ? { ...m, content: m.content + chunk }
                   : m
               );
             }
@@ -366,7 +374,7 @@ export class ChatService implements OnDestroy {
               messageId: event.messageId ?? `stream-${Date.now()}`,
               sessionId: event.sessionId,
               senderType: 'AI',
-              content: event.chunk ?? '',
+              content: chunk,
               timestamp: new Date().toISOString(),
               streaming: true,
             };

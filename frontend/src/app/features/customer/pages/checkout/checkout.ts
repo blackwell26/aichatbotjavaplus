@@ -17,6 +17,12 @@ import { PlaceOrderRequest } from '../../../../core/models/api.model';
 import { CartService } from '../../services/cart.service';
 import { OrderService } from '../../services/order.service';
 import { PaymentService } from '../../services/payment.service';
+import {
+  noHtmlValidator,
+  personNameValidator,
+  postalCodeValidator,
+} from '../../../../shared/utils/input.validators';
+import { MaskSensitivePipe } from '../../../../shared/pipes/mask-sensitive.pipe';
 
 type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
 
@@ -37,6 +43,7 @@ type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
     MatIconModule,
     MatDividerModule,
     MatProgressSpinnerModule,
+    MaskSensitivePipe,
   ],
   template: `
     <section class="checkout-page" aria-labelledby="checkout-title">
@@ -255,7 +262,7 @@ type CheckoutStep = 'address' | 'payment' | 'review' | 'confirmed';
 
                   <h3>Payment</h3>
                   <p class="review-payment">
-                    Card ending in {{ maskedCard() }}
+                    Card ending in {{ paymentForm.controls.cardNumber.value | maskSensitive: 'card' }}
                   </p>
 
                   <mat-divider />
@@ -596,26 +603,30 @@ export class CheckoutComponent {
   ];
 
   readonly addressForm = this.fb.nonNullable.group({
-    fullName: ['', Validators.required],
-    line1: ['', Validators.required],
-    line2: [''],
-    city: ['', Validators.required],
-    state: ['', Validators.required],
-    postalCode: ['', Validators.required],
+    fullName: [
+      '',
+      [Validators.required, personNameValidator(), noHtmlValidator(), Validators.maxLength(100)],
+    ],
+    line1: ['', [Validators.required, noHtmlValidator(), Validators.maxLength(120)]],
+    line2: ['', [noHtmlValidator(), Validators.maxLength(120)]],
+    city: ['', [Validators.required, noHtmlValidator(), Validators.maxLength(80)]],
+    state: ['', [Validators.required, noHtmlValidator(), Validators.maxLength(80)]],
+    postalCode: ['', [Validators.required, postalCodeValidator()]],
     country: ['US', Validators.required],
   });
 
   readonly paymentForm = this.fb.nonNullable.group({
-    cardName: ['', Validators.required],
-    cardNumber: ['', [Validators.required, Validators.minLength(15)]],
+    cardName: [
+      '',
+      [Validators.required, personNameValidator(), noHtmlValidator(), Validators.maxLength(100)],
+    ],
+    cardNumber: [
+      '',
+      [Validators.required, Validators.minLength(15), Validators.pattern(/^\d[\d\s]{13,18}\d$/)],
+    ],
     expiry: ['', [Validators.required, Validators.pattern(/^\d{2}\/\d{2}$/)]],
-    cvv: ['', [Validators.required, Validators.minLength(3)]],
+    cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
   });
-
-  protected maskedCard(): string {
-    const num = this.paymentForm.controls.cardNumber.value.replace(/\s/g, '');
-    return num ? num.slice(-4) : '••••';
-  }
 
   protected goToPayment(): void {
     if (this.addressForm.invalid) {

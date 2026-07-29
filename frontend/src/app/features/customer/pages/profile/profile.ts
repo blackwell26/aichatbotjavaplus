@@ -21,6 +21,11 @@ import {
   passwordMatchValidator,
   passwordStrengthValidator,
 } from '../../../../shared/utils/password.validators';
+import {
+  noHtmlValidator,
+  personNameValidator,
+  phoneValidator,
+} from '../../../../shared/utils/input.validators';
 
 @Component({
   selector: 'app-profile',
@@ -99,7 +104,7 @@ import {
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Phone number (optional)</mat-label>
                     <input matInput type="tel" formControlName="phone" autocomplete="tel" />
-                    @if (profileForm.controls.phone.hasError('pattern') && profileForm.controls.phone.touched) {
+                    @if (profileForm.controls.phone.hasError('phone') && profileForm.controls.phone.touched) {
                       <mat-error>Enter a valid phone number.</mat-error>
                     }
                   </mat-form-field>
@@ -433,8 +438,17 @@ export class ProfileComponent implements OnInit {
 
   // ── Forms ──────────────────────────────────────────────────────────────────
   readonly profileForm = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-    phone: ['', Validators.pattern(/^\+?[\d\s\-().]{7,20}$/)],
+    name: [
+      '',
+      [
+        Validators.required,
+        Validators.minLength(2),
+        Validators.maxLength(100),
+        personNameValidator(),
+        noHtmlValidator(),
+      ],
+    ],
+    phone: ['', [phoneValidator()]],
   });
 
   readonly prefsForm = this.fb.nonNullable.group({

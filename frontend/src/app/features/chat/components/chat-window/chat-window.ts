@@ -19,11 +19,11 @@ import { AuthService } from '../../../../core/auth/auth.service';
 import {
   ChatMessage,
   ChatSuggestedPrompt,
-  DEFAULT_SUGGESTED_PROMPTS,
   EscalationTrigger,
   SENDER_TYPE_LABELS,
 } from '../../models/chat.model';
 import { environment } from '../../../../../environments/environment';
+import { SafeTextPipe } from '../../../../shared/pipes/safe-text.pipe';
 
 /**
  * T4.2/T4.3/T4.4/T4.5/T4.8 – ChatWindowComponent
@@ -44,7 +44,7 @@ import { environment } from '../../../../../environments/environment';
 @Component({
   selector: 'app-chat-window',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, SafeTextPipe],
   styles: [
     `
       :host {
@@ -500,7 +500,7 @@ import { environment } from '../../../../../environments/environment';
             <div
               class="bubble"
               [class.streaming-cursor]="msg.streaming"
-            >{{ msg.content }}</div>
+            >{{ msg.content | safeText }}</div>
             <span class="message-meta">
               {{ getSenderLabel(msg) }} · {{ formatTime(msg.timestamp) }}
             </span>

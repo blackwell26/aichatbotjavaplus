@@ -14,6 +14,11 @@ import {
   passwordMatchValidator,
   passwordStrengthValidator,
 } from '../../../../shared/utils/password.validators';
+import {
+  noHtmlValidator,
+  personNameValidator,
+  phoneValidator,
+} from '../../../../shared/utils/input.validators';
 
 @Component({
   selector: 'app-register',
@@ -45,9 +50,18 @@ export class RegisterComponent {
 
   readonly form = this.fb.nonNullable.group(
     {
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.pattern(/^\+?[\d\s\-().]{7,20}$/)]],
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(100),
+          personNameValidator(),
+          noHtmlValidator(),
+        ],
+      ],
+      email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
+      phone: ['', [phoneValidator()]],
       password: ['', [Validators.required, passwordStrengthValidator()]],
       confirmPassword: ['', Validators.required],
     },
