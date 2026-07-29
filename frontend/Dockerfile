@@ -18,7 +18,7 @@ COPY . .
 
 # Build application for production
 # Uses optimization settings from angular.json
-RUN npm run build:prod
+RUN npm run build -- --configuration=production
 
 # Remove development dependencies to reduce size
 RUN npm prune --production
@@ -38,14 +38,30 @@ RUN apk add --no-cache curl
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy built Angular app from builder stage
-COPY --from=builder --chown=101:101 /app/dist/aichatbot-frontend/browser /usr/share/nginx/html
+# Angular 19+ outputs directly to dist/aichatbot-frontend (no browser subdirectory)
+COPY --from=builder --chown=101:101 /app/dist/aichatbot-frontend /usr/share/nginx/html
 
 # Copy NGINX configuration
 COPY --chown=101:101 nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy service worker and manifest
-COPY --from=builder --chown=101:101 /app/src/service-worker.js /usr/share/nginx/html/
-COPY --from=builder --chown=101:101 /app/src/manifest.json /usr/share/nginx/html/
+# Create nginx.conf that works with non-root user
+RUN echo 'pid /tmp/nginx.pid;' > /etc/nginx/nginx.conf && \
+    echo 'worker_processes auto;' >> /etc/nginx/nginx.conf && \
+    echo 'error_log /var/log/nginx/error.log warn;' >> /etc/nginx/nginx.conf && \
+    echo 'events { worker_connections 1024; }' >> /etc/nginx/nginx.conf && \
+    echo 'http {' >> /etc/nginx/nginx.conf && \
+    echo '    include /etc/nginx/mime.types;' >> /etc/nginx/nginx.conf && \
+    echo '    default_type application/octet-stream;' >> /etc/nginx/nginx.conf && \
+    echo '    log_format main '"'"'$remote_addr - $remote_user [$time_local] "$request" '"'"' >> /etc/nginx/nginx.conf && \
+    echo '                    '"'"'$status $body_bytes_sent "$http_referer" '"'"' >> /etc/nginx/nginx.conf && \
+    echo '                    '"'"'"$http_user_agent" "$http_x_forwarded_for"'"'"';' >> /etc/nginx/nginx.conf && \
+    echo '    access_log /var/log/nginx/access.log main;' >> /etc/nginx/nginx.conf && \
+    echo '    include /etc/nginx/conf.d/*.conf;' >> /etc/nginx/nginx.conf && \
+    echo '}' >> /etc/nginx/nginx.conf && \
+    chown 101:101 /etc/nginx/nginx.conf
+
+# Service worker and manifest are included in the build output if configured
+# No need to copy separately as they're part of the dist folder
 
 # Set proper permissions
 RUN chown -R 101:101 /usr/share/nginx/html && \

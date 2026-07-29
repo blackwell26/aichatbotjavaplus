@@ -71,10 +71,7 @@
               },
               "sourceMap": false,
               "namedChunks": false,
-              "extractLicenses": true,
-              "buildOptimizer": true,
-              "vendorChunk": true,
-              "commonChunk": true
+              "extractLicenses": true
             },
             "staging": {
               "fileReplacements": [
@@ -108,10 +105,7 @@
               },
               "sourceMap": true,
               "namedChunks": false,
-              "extractLicenses": true,
-              "buildOptimizer": true,
-              "vendorChunk": true,
-              "commonChunk": true
+              "extractLicenses": true
             },
             "development": {
               "fileReplacements": [
