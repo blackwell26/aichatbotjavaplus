@@ -34,33 +34,29 @@ LABEL version="1.0.0"
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
-# Create non-root user for NGINX
-RUN addgroup -g 101 -S nginx && \
-    adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx
-
 # Remove default NGINX static assets and config
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy built Angular app from builder stage
-COPY --from=builder --chown=nginx:nginx /app/dist/aichatbot-frontend/browser /usr/share/nginx/html
+COPY --from=builder --chown=101:101 /app/dist/aichatbot-frontend/browser /usr/share/nginx/html
 
 # Copy NGINX configuration
-COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
+COPY --chown=101:101 nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy service worker and manifest
-COPY --from=builder --chown=nginx:nginx /app/src/service-worker.js /usr/share/nginx/html/
-COPY --from=builder --chown=nginx:nginx /app/src/manifest.json /usr/share/nginx/html/
+COPY --from=builder --chown=101:101 /app/src/service-worker.js /usr/share/nginx/html/
+COPY --from=builder --chown=101:101 /app/src/manifest.json /usr/share/nginx/html/
 
 # Set proper permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
+RUN chown -R 101:101 /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
 
 # Create cache and pid directories with proper permissions
 RUN mkdir -p /var/cache/nginx /var/run && \
-    chown -R nginx:nginx /var/cache/nginx /var/run
+    chown -R 101:101 /var/cache/nginx /var/run
 
 # Switch to non-root user
-USER nginx
+USER 101:101
 
 # Expose port
 EXPOSE 8080
