@@ -11,3 +11,19 @@ export {
   postalCodeValidator,
   safeTextValidator,
 } from './input.validators';
+export {
+  generateSrcSet,
+  calculateImageDimensions,
+  preloadImage,
+  preloadImages,
+} from './image-optimizer';
+export {
+  preloadFont,
+  preloadFonts,
+  generateFontFace,
+  isFontLoaded,
+  waitForFont,
+  FontDisplay,
+  FONT_SUBSETS,
+  generateUnicodeRange,
+} from './font-optimizer';

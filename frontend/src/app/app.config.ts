@@ -14,6 +14,7 @@ import { routes } from './app.routes';
 import {
   apiErrorInterceptor,
   authInterceptor,
+  cacheInterceptor,
   csrfInterceptor,
   retryInterceptor,
 } from './core/interceptors';
@@ -42,9 +43,10 @@ export const appConfig: ApplicationConfig = {
         cookieName: CSRF_COOKIE_NAME,
         headerName: CSRF_HEADER_NAME,
       }),
-      // Order: auth → csrf → retry (idempotent) → error mapping
+      // Order: auth → cache → csrf → retry (idempotent) → error mapping
       withInterceptors([
         authInterceptor,
+        cacheInterceptor,
         csrfInterceptor,
         retryInterceptor,
         apiErrorInterceptor,
