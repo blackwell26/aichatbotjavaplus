@@ -309,4 +309,36 @@ Phase 6 is complete. Here's a summary:
 
 
 
+ Phase 9 — Security is implemented. Build and lint pass.
+
+  T9.1 XSS protection
+
+  • shared/security/sanitize.ts — strip HTML, control chars, script-like patterns
+  • SafeTextPipe — applied to chat message bubbles
+  • Chat outbound/inbound content sanitized in ChatService
+
+  T9.2 CSRF protection
+
+  • Angular withXsrfConfiguration (XSRF-TOKEN → X-XSRF-TOKEN)
+  • csrfInterceptor for cross-origin gateway mutating requests with withCredentials
+
+  T9.3 CSP
+
+  • Tightened CSP in nginx.conf (+ Permissions-Policy, COOP, CORP)
+  • Meta CSP in index.html as defence-in-depth
+
+  T9.4 Input validation
+
+  • Shared validators: noHtml, phone, postalCode, personName, safeText, …
+  • Wired into register, profile, and checkout forms
+
+  T9.5 Secure token handling
+
+  • Memory-first access tokens + sessionStorage mirror (no localStorage)
+  • Token shape validation, URL token scrubbing, production HTTPS/WSS checks
+  • MaskSensitivePipe for card/email/phone display (WEB-SEC-008)
+
+
+
+
 
