@@ -20,6 +20,13 @@ COPY . .
 # Uses optimization settings from angular.json
 RUN npm run build -- --configuration=production
 
+# Normalize Angular output so the runtime stage can copy a stable path.
+RUN if [ -d /app/dist/aichatbot-frontend/browser ]; then \
+      cp -r /app/dist/aichatbot-frontend/browser /app/dist/site; \
+    else \
+      cp -r /app/dist/aichatbot-frontend /app/dist/site; \
+    fi
+
 # Remove development dependencies to reduce size
 RUN npm prune --production
 
@@ -38,8 +45,12 @@ RUN apk add --no-cache curl
 RUN rm -rf /usr/share/nginx/html/* /etc/nginx/conf.d/default.conf
 
 # Copy built Angular app from builder stage
+<<<<<<< HEAD
 # Angular 19+ outputs directly to dist/aichatbot-frontend (no browser subdirectory)
 COPY --from=builder --chown=101:101 /app/dist/aichatbot-frontend /usr/share/nginx/html
+=======
+COPY --from=builder --chown=101:101 /app/dist/site/. /usr/share/nginx/html/
+>>>>>>> 14a537577f0cae85fef3a2c4e9334aeed9ec214e
 
 # Copy NGINX configuration
 COPY --chown=101:101 nginx.conf /etc/nginx/conf.d/default.conf
