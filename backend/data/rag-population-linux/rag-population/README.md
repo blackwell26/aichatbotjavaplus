@@ -44,6 +44,15 @@ different directory:
 Files with `faq`, `policy`, `manual`, or `support` in their names receive the
 corresponding source type. Other files become `SUPPORT_ARTICLE`.
 
+The default seed corpus includes:
+
+- `faq_returns.md`
+- `payment_support.md`
+- `shipping_policy.md`
+- `order_tracking.md`
+- `refund_status.md`
+- `login_account_help.md`
+
 ## Test retrieval
 
 ```bash
@@ -55,14 +64,14 @@ corresponding source type. Other files become `SUPPORT_ARTICLE`.
 - Re-running ingestion skips unchanged files.
 - Changing a file creates a new document version and marks the prior version
   inactive.
-- Each document is split into 1,000-character chunks with 150-character
-  overlap.
+- Each document is split into heading-aware chunks with 1,000-character target
+  size and 150-character overlap.
 - The HNSW cosine index supports semantic nearest-neighbour search.
 - One file is committed at a time; a failed file is rolled back.
 
-`nomic-embed-text` produces 768-dimensional vectors. If another model is used,
-change both `vector(768)` in `sql/001_rag_schema.sql` and the ingestion
-`--dimensions` value before creating the schema.
+`nomic-embed-text` produces 1536-dimensional vectors in this setup. If another
+model is used, change both `vector(1536)` in `sql/001_rag_schema.sql` and the
+ingestion `--dimensions` value before creating the schema.
 
 Do not place database passwords in these scripts. Supply secrets through the
 environment or a Linux secrets manager.

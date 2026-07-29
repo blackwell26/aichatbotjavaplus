@@ -1,10 +1,10 @@
 SELECT d.source_title, d.source_type, d.version, d.status,
-       count(DISTINCT c.chunk_id) AS chunks,
-       count(DISTINCT e.embedding_id) AS embeddings
+       count(DISTINCT c.id) AS chunks,
+       count(DISTINCT e.id) AS embeddings
 FROM knowledge_documents d
-LEFT JOIN knowledge_chunks c ON c.document_id = d.document_id
-LEFT JOIN document_embeddings e ON e.document_id = d.document_id
-GROUP BY d.document_id
+LEFT JOIN knowledge_chunks c ON c.document_id = d.id
+LEFT JOIN document_embeddings e ON e.document_id = d.id
+GROUP BY d.id
 ORDER BY d.source_type, d.source_title;
 
 SELECT
