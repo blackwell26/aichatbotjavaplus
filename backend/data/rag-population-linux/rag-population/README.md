@@ -29,6 +29,8 @@ chmod +x setup.sh populate.sh search.sh
 export DATABASE_URL='postgresql://rag_user:change_me@localhost:5432/ragdb'
 export OLLAMA_URL='http://localhost:11434'
 export EMBEDDING_MODEL='nomic-embed-text'
+# If Ollama runs in Docker, set the container name instead of using OLLAMA_URL.
+# export OLLAMA_CONTAINER='aichatbot_ollama'
 
 ./setup.sh
 ./populate.sh

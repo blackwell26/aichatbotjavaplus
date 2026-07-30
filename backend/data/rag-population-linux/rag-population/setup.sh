@@ -14,8 +14,10 @@ python3 -m venv "${SCRIPT_DIR}/.venv"
 
 OLLAMA_URL="${OLLAMA_URL:-http://localhost:11434}"
 EMBEDDING_MODEL="${EMBEDDING_MODEL:-nomic-embed-text}"
+OLLAMA_CONTAINER="${OLLAMA_CONTAINER:-}"
 
-python3 - "${OLLAMA_URL}" "${EMBEDDING_MODEL}" <<'PY'
+pull_model_via_http() {
+  python3 - "${OLLAMA_URL}" "${EMBEDDING_MODEL}" <<'PY'
 import json
 import sys
 import urllib.error
@@ -37,6 +39,23 @@ try:
 except urllib.error.URLError as exc:
     raise SystemExit(f"Failed to pull Ollama model '{model}' from {base_url}: {exc}")
 PY
+}
+
+pull_model_via_container() {
+  command -v docker >/dev/null || return 1
+  docker inspect "${OLLAMA_CONTAINER}" >/dev/null 2>&1 || return 1
+  docker exec "${OLLAMA_CONTAINER}" ollama pull "${EMBEDDING_MODEL}"
+}
+
+if [[ -n "${OLLAMA_CONTAINER}" ]]; then
+  echo "Pulling Ollama model via container ${OLLAMA_CONTAINER}..."
+  pull_model_via_container || {
+    echo "Container pull failed; falling back to HTTP at ${OLLAMA_URL}..." >&2
+    pull_model_via_http
+  }
+else
+  pull_model_via_http
+fi
 
 psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -f "${SCRIPT_DIR}/sql/001_rag_schema.sql"
 
