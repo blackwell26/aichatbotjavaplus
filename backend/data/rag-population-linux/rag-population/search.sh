@@ -20,12 +20,24 @@ print("[" + ",".join(f"{v:.9g}" for v in values) + "]")
 PY
 )"
 
-psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 -v query_vector="${QUERY_VECTOR}" \
-  -c "SELECT e.source_title, e.source_type, c.content,
-             round((1 - (e.embedding_vector <=> :'query_vector'::vector))::numeric, 4) AS similarity
-      FROM document_embeddings e
-      JOIN knowledge_chunks c ON c.chunk_id = e.chunk_id
-      JOIN knowledge_documents d ON d.document_id = e.document_id
-      WHERE d.status = 'ACTIVE'
-      ORDER BY e.embedding_vector <=> :'query_vector'::vector
-      LIMIT 5;"
+if [[ -z "${QUERY_VECTOR}" ||
+      ! "${QUERY_VECTOR}" =~ ^\[[-0-9eE+.,[:space:]]+\]$ ]]; then
+  echo "Ollama did not return a valid embedding vector." >&2
+  exit 1
+fi
+
+psql "${DATABASE_URL}" -v ON_ERROR_STOP=1 <<SQL
+SELECT e.source_title,
+       e.source_type,
+       c.content,
+       round(
+           (1 - (e.embedding_vector <=> '${QUERY_VECTOR}'::vector))::numeric,
+           4
+       ) AS similarity
+FROM document_embeddings e
+JOIN knowledge_chunks c ON c.chunk_id = e.chunk_id
+JOIN knowledge_documents d ON d.document_id = e.document_id
+WHERE d.status = 'ACTIVE'
+ORDER BY e.embedding_vector <=> '${QUERY_VECTOR}'::vector
+LIMIT 5;
+SQL

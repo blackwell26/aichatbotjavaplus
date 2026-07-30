@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DATABASE_URL="postgresql://aichatbot:aichatbot@localhost:5432/aichatbot"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-: "${DATABASE_URL:?Set DATABASE_URL, for example postgresql://rag_user:password@localhost:5432/ragdb}"
+: "${DATABASE_URL:?Set DATABASE_URL, for example postgresql://aichatbot:aichatbot@localhost:5432/ragdb}"
 
 command -v psql >/dev/null || { echo "psql is required."; exit 1; }
 command -v python3 >/dev/null || { echo "python3 is required."; exit 1; }
