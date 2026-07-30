@@ -50,21 +50,63 @@ def source_type(path: Path) -> str:
                 "SUPPORT_ARTICLE")
 
 
-def chunk_text(text: str, size: int, overlap: int) -> list[str]:
-    normalized = re.sub(r"\s+", " ", re.sub(r"(?m)^#+\s*", "", text)).strip()
+def markdown_sections(text: str) -> list[tuple[str, str]]:
+    lines = text.splitlines()
+    sections: list[tuple[str, str]] = []
+    current_heading = ""
+    current_body: list[str] = []
+
+    def flush() -> None:
+        nonlocal current_body
+        body = "\n".join(current_body).strip()
+        if current_heading or body:
+            sections.append((current_heading, body))
+        current_body = []
+
+    for line in lines:
+        heading_match = re.match(r"^(#{1,6})\s+(.+?)\s*$", line)
+        if heading_match:
+            flush()
+            current_heading = heading_match.group(2).strip()
+            continue
+        current_body.append(line)
+
+    flush()
+    if not sections:
+        return [("", text.strip())] if text.strip() else []
+    return sections
+
+
+def split_section(heading: str, body: str, size: int, overlap: int) -> list[str]:
+    normalized = re.sub(r"\s+", " ", body).strip()
     if not normalized:
         return []
-    chunks, start = [], 0
+
+    prefix = f"{heading}. " if heading else ""
+    max_body = max(100, size - len(prefix))
+    chunks: list[str] = []
+    start = 0
     while start < len(normalized):
-        end = min(start + size, len(normalized))
+        end = min(start + max_body, len(normalized))
         if end < len(normalized):
-            boundary = normalized.rfind(" ", start + size // 2, end)
+            boundary = normalized.rfind(" ", start + max_body // 2, end)
             if boundary > start:
                 end = boundary
-        chunks.append(normalized[start:end].strip())
+        chunk_body = normalized[start:end].strip()
+        if chunk_body:
+            chunks.append(prefix + chunk_body)
         if end == len(normalized):
             break
         start = max(end - overlap, start + 1)
+    return chunks
+
+
+def chunk_text(text: str, size: int, overlap: int) -> list[str]:
+    chunks: list[str] = []
+    for heading, body in markdown_sections(text):
+        if heading and not body:
+            continue
+        chunks.extend(split_section(heading, body, size, overlap))
     return chunks
 
 
@@ -84,7 +126,7 @@ def ingest_file(conn, path: Path, args) -> str:
 
     with conn.cursor() as cur:
         cur.execute(
-            """SELECT document_id FROM knowledge_documents
+            """SELECT id FROM knowledge_documents
                WHERE source_uri = %s AND content_hash = %s AND status = 'ACTIVE'""",
             (uri, digest),
         )
@@ -102,11 +144,11 @@ def ingest_file(conn, path: Path, args) -> str:
         )
         cur.execute(
             """INSERT INTO knowledge_documents
-               (source_uri, source_title, source_type, version, content_hash, status,
+               (title, source_uri, source_title, source_type, version, content_hash, status,
                 metadata)
-               VALUES (%s, %s, %s, %s, %s, 'PROCESSING', %s)
-               RETURNING document_id""",
-            (uri, title, source_type(path), version, digest,
+               VALUES (%s, %s, %s, %s, %s, %s, 'PROCESSING', %s)
+               RETURNING id""",
+            (title, uri, title, source_type(path), version, digest,
              json.dumps({"file_name": path.name})),
         )
         document_id = cur.fetchone()[0]
@@ -120,8 +162,8 @@ def ingest_file(conn, path: Path, args) -> str:
                 )
             cur.execute(
                 """INSERT INTO knowledge_chunks
-                   (document_id, chunk_index, content, token_count, metadata)
-                   VALUES (%s, %s, %s, %s, %s) RETURNING chunk_id""",
+                   (document_id, sequence_number, content, token_count, metadata)
+                   VALUES (%s, %s, %s, %s, %s) RETURNING id""",
                 (document_id, index, content, len(content.split()),
                  json.dumps({"character_count": len(content)})),
             )
@@ -129,13 +171,14 @@ def ingest_file(conn, path: Path, args) -> str:
             cur.execute(
                 """INSERT INTO document_embeddings
                    (document_id, chunk_id, embedding_model, embedding_vector,
-                    source_title, source_type, version)
-                   VALUES (%s, %s, %s, %s::vector, %s, %s, %s)""",
+                    source_title, source_type, version, dimension, embedding_id)
+                   VALUES (%s, %s, %s, %s::vector, %s, %s, %s, %s, %s)""",
                 (document_id, chunk_id, args.model, vector_literal(embedding),
-                 title, source_type(path), version),
+                 title, source_type(path), version, len(embedding),
+                 f"{path.stem}-{version}-{index}"),
             )
         cur.execute(
-            "UPDATE knowledge_documents SET status = 'ACTIVE' WHERE document_id = %s",
+            "UPDATE knowledge_documents SET status = 'ACTIVE' WHERE id = %s",
             (document_id,),
         )
     return f"OK   {path.name}: version={version}, chunks={len(chunks)}"
@@ -146,7 +189,7 @@ def main() -> int:
     parser.add_argument("directory", nargs="?", default="knowledge")
     parser.add_argument("--model", default=os.getenv("EMBEDDING_MODEL", "nomic-embed-text"))
     parser.add_argument("--ollama-url", default=os.getenv("OLLAMA_URL", "http://localhost:11434"))
-    parser.add_argument("--dimensions", type=int, default=768)
+    parser.add_argument("--dimensions", type=int, default=1536)
     parser.add_argument("--chunk-size", type=int, default=1000)
     parser.add_argument("--chunk-overlap", type=int, default=150)
     args = parser.parse_args()

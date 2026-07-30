@@ -41,3 +41,4 @@ WHERE d.status = 'ACTIVE'
 ORDER BY e.embedding_vector <=> '${QUERY_VECTOR}'::vector
 LIMIT 5;
 SQL
+
