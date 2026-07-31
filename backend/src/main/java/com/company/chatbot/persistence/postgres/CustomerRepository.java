@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface CustomerRepository extends JpaRepository<CustomerEntity, Long> {
     Optional<CustomerEntity> findByExternalId(UUID externalId);
+    boolean existsByEmailIgnoreCase(String email);
 }
