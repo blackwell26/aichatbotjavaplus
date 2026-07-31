@@ -30,14 +30,16 @@ export class ClientLoggerService {
   }
 
   private forward(level: ClientLogLevel, message: string, details?: Record<string, unknown>): void {
+    const stack = details?.['stack'];
+    const sessionId = details?.['sessionId'];
     const payload = {
       level: level.toUpperCase(),
       message,
       source: 'frontend',
-      stack: details?.stack ? String(details.stack) : undefined,
+      stack: stack != null ? String(stack) : undefined,
       url: location.href,
       userAgent: navigator.userAgent,
-      sessionId: details?.sessionId ? String(details.sessionId) : undefined,
+      sessionId: sessionId != null ? String(sessionId) : undefined,
     };
     const body = JSON.stringify(payload);
 
