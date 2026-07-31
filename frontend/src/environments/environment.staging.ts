@@ -1,4 +1,5 @@
 import { Environment } from './environment.type';
+import { getRuntimeConfig } from './runtime-config';
 
 /**
  * Staging environment.
@@ -9,14 +10,15 @@ export const environment: Environment = {
   name: 'staging',
   production: false,
 
-  apiBaseUrl: 'https://api.staging.aichatbot.example.com/api/v1',
-  wsBaseUrl: 'wss://api.staging.aichatbot.example.com/ws',
+  apiBaseUrl: getRuntimeConfig().apiBaseUrl ?? 'https://api.staging.aichatbot.example.com/api/v1',
+  clientLogUrl: getRuntimeConfig().clientLogUrl ?? 'https://api.staging.aichatbot.example.com/api/v1/client-logs',
+  wsBaseUrl: getRuntimeConfig().wsBaseUrl ?? 'wss://api.staging.aichatbot.example.com/ws',
 
   enableDebugLogging: true,
   useMockApi: false,
 
   auth: {
-    issuer: 'https://auth.staging.aichatbot.example.com',
+    issuer: getRuntimeConfig().authIssuer ?? 'https://auth.staging.aichatbot.example.com',
     clientId: 'aichatbot-frontend',
     scope: 'openid profile email',
     tokenRefreshBufferSeconds: 60,

@@ -1,4 +1,5 @@
 import { Environment } from './environment.type';
+import { getRuntimeConfig } from './runtime-config';
 
 /**
  * Production environment.
@@ -9,14 +10,15 @@ export const environment: Environment = {
   name: 'production',
   production: true,
 
-  apiBaseUrl: 'https://api.aichatbot.example.com/api/v1',
-  wsBaseUrl: 'wss://api.aichatbot.example.com/ws',
+  apiBaseUrl: getRuntimeConfig().apiBaseUrl ?? 'https://api.aichatbot.example.com/api/v1',
+  clientLogUrl: getRuntimeConfig().clientLogUrl ?? 'https://api.aichatbot.example.com/api/v1/client-logs',
+  wsBaseUrl: getRuntimeConfig().wsBaseUrl ?? 'wss://api.aichatbot.example.com/ws',
 
   enableDebugLogging: false,
   useMockApi: false,
 
   auth: {
-    issuer: 'https://auth.aichatbot.example.com',
+    issuer: getRuntimeConfig().authIssuer ?? 'https://auth.aichatbot.example.com',
     clientId: 'aichatbot-frontend',
     scope: 'openid profile email',
     tokenRefreshBufferSeconds: 120,

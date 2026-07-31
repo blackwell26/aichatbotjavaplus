@@ -12,6 +12,9 @@ export interface Environment {
   /** Base URL of the API gateway / backend-for-frontend. */
   apiBaseUrl: string;
 
+  /** Optional override for the client log ingestion endpoint. */
+  clientLogUrl?: string;
+
   /** Base WebSocket URL for real-time chat and agent features. */
   wsBaseUrl: string;
 

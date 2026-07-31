@@ -5,7 +5,9 @@ export type ClientLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 @Injectable({ providedIn: 'root' })
 export class ClientLoggerService {
-  private readonly endpoint = `${environment.apiBaseUrl.replace(/\/+$/, '')}/client-logs`;
+  private readonly endpoint =
+    environment.clientLogUrl?.replace(/\/+$/, '') ??
+    `${environment.apiBaseUrl.replace(/\/+$/, '')}/client-logs`;
 
   log(level: ClientLogLevel, message: string, details?: Record<string, unknown>): void {
     const consoleMethod = console[level] ?? console.info;
