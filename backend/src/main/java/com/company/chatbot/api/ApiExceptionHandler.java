@@ -15,11 +15,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestControllerAdvice
 public class ApiExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
+
     @ExceptionHandler(ChatSessionNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleSessionNotFound(ChatSessionNotFoundException ex) {
+        log.warn("chat session not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "session_not_found",
                 "message", ex.getMessage()
@@ -28,6 +34,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(KnowledgeDocumentNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleKnowledgeDocumentNotFound(KnowledgeDocumentNotFoundException ex) {
+        log.warn("knowledge document not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "knowledge_document_not_found",
                 "message", ex.getMessage()
@@ -36,6 +43,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(KnowledgeIngestionJobNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleKnowledgeJobNotFound(KnowledgeIngestionJobNotFoundException ex) {
+        log.warn("knowledge ingestion job not found: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "knowledge_ingestion_job_not_found",
                 "message", ex.getMessage()
@@ -44,6 +52,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        log.warn("bad request: {}", ex.getMessage());
         return ResponseEntity.badRequest().body(Map.of(
                 "error", "bad_request",
                 "message", ex.getMessage()
@@ -52,6 +61,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+        log.warn("validation failed: {}", ex.getMessage());
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
@@ -69,6 +79,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("access denied: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
                 "error", "forbidden",
                 "message", ex.getMessage()

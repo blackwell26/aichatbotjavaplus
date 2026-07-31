@@ -15,11 +15,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * JWT filter that validates Bearer tokens and sets Authentication in the SecurityContext.
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtTokenVerifier tokenVerifier;
     private final JwtService jwtService;
@@ -53,11 +58,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                    log.debug("JWT authentication succeeded username={} customerId={}", username, customerId);
                 } else {
+                    log.warn("JWT authentication rejected: invalid token");
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     return;
                 }
             } catch (Exception ex) {
+                log.warn("JWT authentication error: {}", ex.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }

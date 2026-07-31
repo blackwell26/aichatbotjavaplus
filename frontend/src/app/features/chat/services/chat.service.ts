@@ -19,6 +19,7 @@ import { environment } from '../../../../environments/environment';
 import { ApiResponse } from '../../../core/models/api.model';
 import { TokenStorageService } from '../../../core/auth/token-storage.service';
 import { ApiGatewayService } from '../../../core/services/api-gateway.service';
+import { ClientLoggerService } from '../../../core/services/client-logger.service';
 import { sanitizeUserText } from '../../../shared/security/sanitize';
 import {
   ChatHistoryResponse,
@@ -58,6 +59,7 @@ export class ChatService implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly gateway = inject(ApiGatewayService);
+  private readonly logger = inject(ClientLoggerService);
 
   private readonly apiBase = this.gateway.url('chat', 'sessions');
   private readonly wsBase = this.gateway.wsBaseUrl;
@@ -105,6 +107,7 @@ export class ChatService implements OnDestroy {
   createSession(
     payload: CreateSessionRequest = {}
   ): Observable<ApiResponse<CreateSessionResponse>> {
+    this.logger.info('Chat session create requested');
     this._connecting.set(true);
     this._error.set(null);
 
@@ -112,6 +115,7 @@ export class ChatService implements OnDestroy {
       .post<ApiResponse<CreateSessionResponse>>(this.apiBase, payload)
       .pipe(
         tap((res) => {
+          this.logger.info('Chat session created', { sessionId: res.data.sessionId });
           const { sessionId, status, createdAt } = res.data;
           this._session.set({
             sessionId,
@@ -131,6 +135,9 @@ export class ChatService implements OnDestroy {
           }
         }),
         catchError((err: unknown) => {
+          this.logger.error('Could not start chat session', {
+            stack: err instanceof Error ? err.stack : String(err),
+          });
           this._error.set('Could not start chat session.');
           this._connecting.set(false);
           throw err;
@@ -142,11 +149,13 @@ export class ChatService implements OnDestroy {
    * Load an existing session by ID (used when resuming from history).
    */
   getSession(sessionId: string): Observable<ApiResponse<ChatHistoryResponse>> {
+    this.logger.info('Chat session load requested', { sessionId });
     this._connecting.set(true);
     return this.http
       .get<ApiResponse<ChatHistoryResponse>>(`${this.apiBase}/${sessionId}`)
       .pipe(
         tap((res) => {
+          this.logger.info('Chat session loaded', { sessionId });
           const d = res.data;
           this._session.set({
             sessionId: d.sessionId,
@@ -163,6 +172,10 @@ export class ChatService implements OnDestroy {
           }
         }),
         catchError((err: unknown) => {
+          this.logger.error('Could not load chat session', {
+            sessionId,
+            stack: err instanceof Error ? err.stack : String(err),
+          });
           this._error.set('Could not load chat session.');
           this._connecting.set(false);
           throw err;
@@ -184,6 +197,7 @@ export class ChatService implements OnDestroy {
     const safeContent = sanitizeUserText(content, 4000);
     if (!safeContent) return EMPTY;
 
+    this.logger.debug('Chat message send requested', { sessionId: sid, contentLength: safeContent.length });
     this._sending.set(true);
     this._error.set(null);
 
@@ -210,6 +224,7 @@ export class ChatService implements OnDestroy {
     const sid = this.sessionId();
     if (!sid) return EMPTY as Observable<ApiResponse<CloseSessionResponse>>;
 
+    this.logger.info('Chat session close requested', { sessionId: sid });
     return this.http
       .post<ApiResponse<CloseSessionResponse>>(
         `${this.apiBase}/${sid}/close`,
@@ -217,6 +232,7 @@ export class ChatService implements OnDestroy {
       )
       .pipe(
         tap((res) => {
+          this.logger.info('Chat session closed', { sessionId: sid, status: res.data.status });
           this._session.update((s) =>
             s ? { ...s, status: res.data.status, closedAt: res.data.closedAt } : s
           );
@@ -260,6 +276,7 @@ export class ChatService implements OnDestroy {
     const sid = this.sessionId();
     if (!sid) return EMPTY as Observable<ApiResponse<EscalationResponse>>;
 
+    this.logger.info('Chat escalation requested', { sessionId: sid, trigger: payload.trigger });
     this._escalating.set(true);
     return this.http
       .post<ApiResponse<EscalationResponse>>(
@@ -268,6 +285,10 @@ export class ChatService implements OnDestroy {
       )
       .pipe(
         tap((res) => {
+          this.logger.info('Chat escalation completed', {
+            sessionId: sid,
+            ticketNumber: res.data.ticketNumber,
+          });
           this._session.update((s) =>
             s ? { ...s, status: 'ESCALATED' } : s
           );
@@ -284,6 +305,10 @@ export class ChatService implements OnDestroy {
           this.disconnectWebSocket();
         }),
         catchError((err: unknown) => {
+          this.logger.error('Chat escalation failed', {
+            sessionId: sid,
+            stack: err instanceof Error ? err.stack : String(err),
+          });
           this._error.set('Could not escalate to a human agent.');
           this._escalating.set(false);
           throw err;

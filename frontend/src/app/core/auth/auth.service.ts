@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api.model';
 import { Role, User } from '../models/user.model';
 import { ApiGatewayService } from '../services/api-gateway.service';
+import { ClientLoggerService } from '../services/client-logger.service';
 import { TokenStorageService } from './token-storage.service';
 
 export interface LoginRequest {
@@ -54,6 +55,7 @@ export class AuthService implements OnDestroy {
   private readonly router = inject(Router);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly gateway = inject(ApiGatewayService);
+  private readonly logger = inject(ClientLoggerService);
 
   private readonly apiBase = this.gateway.baseUrl;
   private readonly cfg = environment.auth;
@@ -84,15 +86,21 @@ export class AuthService implements OnDestroy {
   // ── Public API ────────────────────────────────────────────────────────────
 
   login(credentials: LoginRequest): Observable<ApiResponse<TokenResponse>> {
+    this.logger.info('Login requested', { email: credentials.email });
     this._loading.set(true);
     return this.http
       .post<ApiResponse<TokenResponse>>(`${this.apiBase}/auth/login`, credentials)
       .pipe(
         tap((res) => {
+          this.logger.info('Login succeeded', { userId: res.data.user.id });
           this.handleTokenResponse(res.data);
           this._loading.set(false);
         }),
         catchError((err) => {
+          this.logger.warn('Login failed', {
+            email: credentials.email,
+            stack: err instanceof Error ? err.stack : String(err),
+          });
           this._loading.set(false);
           return throwError(() => err);
         })
@@ -100,12 +108,20 @@ export class AuthService implements OnDestroy {
   }
 
   register(payload: RegisterRequest): Observable<ApiResponse<{ message: string }>> {
+    this.logger.info('Register requested', { email: payload.email });
     this._loading.set(true);
     return this.http
       .post<ApiResponse<{ message: string }>>(`${this.apiBase}/auth/register`, payload)
       .pipe(
-        tap(() => this._loading.set(false)),
+        tap(() => {
+          this.logger.info('Register succeeded', { email: payload.email });
+          this._loading.set(false);
+        }),
         catchError((err) => {
+          this.logger.warn('Register failed', {
+            email: payload.email,
+            stack: err instanceof Error ? err.stack : String(err),
+          });
           this._loading.set(false);
           return throwError(() => err);
         })
@@ -113,6 +129,7 @@ export class AuthService implements OnDestroy {
   }
 
   requestPasswordReset(payload: PasswordResetRequest): Observable<ApiResponse<{ message: string }>> {
+    this.logger.info('Password reset requested', { email: payload.email });
     return this.http.post<ApiResponse<{ message: string }>>(
       `${this.apiBase}/auth/password-reset`,
       payload
@@ -122,6 +139,7 @@ export class AuthService implements OnDestroy {
   confirmPasswordReset(
     payload: PasswordResetConfirmRequest
   ): Observable<ApiResponse<{ message: string }>> {
+    this.logger.info('Password reset confirm requested');
     return this.http.post<ApiResponse<{ message: string }>>(
       `${this.apiBase}/auth/password-reset/confirm`,
       payload
@@ -129,6 +147,7 @@ export class AuthService implements OnDestroy {
   }
 
   logout(): void {
+    this.logger.info('Logout requested');
     this.clearTimers();
     this.tokenStorage.clear();
     this._user.set(null);

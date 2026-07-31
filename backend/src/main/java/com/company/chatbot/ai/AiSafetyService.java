@@ -11,8 +11,13 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class AiSafetyService {
+
+    private static final Logger log = LoggerFactory.getLogger(AiSafetyService.class);
 
     private static final Pattern EMAIL = Pattern.compile(
             "\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b",
@@ -38,6 +43,9 @@ public class AiSafetyService {
         for (String field : properties.getSensitiveFieldNames()) {
             redacted = redactLabel(redacted, field);
         }
+        if (!redacted.equals(input)) {
+            log.debug("input redacted by AiSafetyService");
+        }
         return redacted;
     }
 
@@ -46,6 +54,10 @@ public class AiSafetyService {
     }
 
     public String buildPrompt(RagRequest request, RagPromptContext context, Map<String, Object> externalFacts) {
+        log.debug("building RAG prompt questionLength={} hasContext={} externalFactCount={}",
+                request == null || request.question() == null ? 0 : request.question().length(),
+                context != null,
+                externalFacts == null ? 0 : externalFacts.size());
         StringBuilder prompt = new StringBuilder();
         prompt.append(buildSystemPrompt()).append("\n\n");
         prompt.append("Customer context:\n").append(customerContextText(request.customerContext())).append("\n\n");
@@ -59,6 +71,7 @@ public class AiSafetyService {
     }
 
     public String buildStructuredSystemPrompt() {
+        log.debug("structured system prompt requested");
         return properties.getSystemPrompt();
     }
 

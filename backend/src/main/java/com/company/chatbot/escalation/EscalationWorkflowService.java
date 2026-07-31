@@ -30,9 +30,14 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 @ConditionalOnBean(EscalationRepository.class)
 public class EscalationWorkflowService {
+
+    private static final Logger log = LoggerFactory.getLogger(EscalationWorkflowService.class);
 
     private final ChatSessionService chatSessionService;
     private final EscalationRepository escalationRepository;
@@ -58,6 +63,9 @@ public class EscalationWorkflowService {
     public Escalation createEscalation(String sessionId, EscalationRequest request, CustomerContext customer) {
         String validatedSessionId = IdValidator.requireValidSessionId(sessionId);
         WorkflowRequestValidator.validateEscalationRequest(validatedSessionId, request.reason());
+        log.info("creating escalation sessionId={} trigger={} confidenceLevel={} customerId={}",
+                validatedSessionId, request.trigger(), request.confidenceLevel(),
+                customer != null ? customer.getCustomerId() : "anonymous");
         ChatSession session = chatSessionService.resumeSession(validatedSessionId,
                 customer == null ? null : customer.getCustomerId());
 
@@ -91,6 +99,7 @@ public class EscalationWorkflowService {
         escalation.setSummary(summaryText);
         escalation.setTicketId(ticket.getId());
         EscalationEntity saved = escalationRepository.save(escalation);
+        log.info("escalation created escalationId={} ticketId={} sessionId={}", saved.getId(), ticket.getId(), validatedSessionId);
 
         summaryRepository.save(ConversationSummaryMapper.toDocument(buildConversationSummary(session, history, summaryText)));
 
@@ -99,15 +108,18 @@ public class EscalationWorkflowService {
     }
 
     public List<Escalation> listEscalations() {
+        log.debug("listing escalations");
         return escalationRepository.findAll().stream().map(this::map).toList();
     }
 
     public Escalation getEscalation(Long escalationId) {
+        log.debug("loading escalation escalationId={}", escalationId);
         return escalationRepository.findById(escalationId).map(this::map)
                 .orElseThrow(() -> new IllegalArgumentException("escalation not found"));
     }
 
     public Escalation assignEscalation(Long escalationId, String agentId) {
+        log.info("assigning escalation escalationId={} agentId={}", escalationId, agentId);
         EscalationEntity escalation = escalationRepository.findById(escalationId)
                 .orElseThrow(() -> new IllegalArgumentException("escalation not found"));
         escalation.setAssignedAgentId(agentId);
@@ -116,6 +128,7 @@ public class EscalationWorkflowService {
     }
 
     public Escalation updateStatus(Long escalationId, EscalationStatus status) {
+        log.info("updating escalation status escalationId={} status={}", escalationId, status);
         EscalationEntity escalation = escalationRepository.findById(escalationId)
                 .orElseThrow(() -> new IllegalArgumentException("escalation not found"));
         escalation.setStatus(status);

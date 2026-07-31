@@ -16,10 +16,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 10)
 @ConditionalOnBean(RateLimitRepository.class)
 public class ApiRateLimitFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(ApiRateLimitFilter.class);
 
     private final RateLimitRepository rateLimitRepository;
     private final SecurityRateLimitProperties rateLimitProperties;
@@ -51,6 +56,8 @@ public class ApiRateLimitFilter extends OncePerRequestFilter {
                 RedisKeyStrategy.rateLimitScope(scope, actorId));
 
         if (count > maxRequests) {
+            log.warn("rate limit exceeded scope={} actorId={} count={} maxRequests={}",
+                    scope, actorId, count, maxRequests);
             response.setStatus(429);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\":\"rate_limit_exceeded\",\"message\":\"Too many requests\"}");
