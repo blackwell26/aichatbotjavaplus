@@ -18,12 +18,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/v1/agent/escalations")
 @Validated
 @PreAuthorize("hasAnyRole('AGENT','MANAGER','ADMIN','SYSTEM')")
 @ConditionalOnBean(EscalationWorkflowService.class)
 public class AgentEscalationController {
+
+    private static final Logger log = LoggerFactory.getLogger(AgentEscalationController.class);
 
     private final EscalationWorkflowService escalationWorkflowService;
 
@@ -33,23 +38,27 @@ public class AgentEscalationController {
 
     @GetMapping
     public ResponseEntity<List<Escalation>> list() {
+        log.info("list escalations requested");
         return ResponseEntity.ok(escalationWorkflowService.listEscalations());
     }
 
     @GetMapping("/{escalationId}")
     public ResponseEntity<Escalation> get(@PathVariable Long escalationId) {
+        log.info("get escalation requested escalationId={}", escalationId);
         return ResponseEntity.ok(escalationWorkflowService.getEscalation(escalationId));
     }
 
     @PutMapping("/{escalationId}/assign")
     public ResponseEntity<Escalation> assign(@PathVariable Long escalationId,
                                              @Valid @RequestBody AssignEscalationRequest request) {
+        log.info("assign escalation requested escalationId={} agentId={}", escalationId, request.agentId());
         return ResponseEntity.ok(escalationWorkflowService.assignEscalation(escalationId, request.agentId()));
     }
 
     @PutMapping("/{escalationId}/status")
     public ResponseEntity<Escalation> updateStatus(@PathVariable Long escalationId,
                                                    @Valid @RequestBody UpdateEscalationStatusRequest request) {
+        log.info("update escalation status requested escalationId={} status={}", escalationId, request.status());
         return ResponseEntity.ok(escalationWorkflowService.updateStatus(escalationId, request.status()));
     }
 

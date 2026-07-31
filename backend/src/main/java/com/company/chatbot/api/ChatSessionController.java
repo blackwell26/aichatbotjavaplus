@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * REST controller for the chat session lifecycle.
  *
@@ -57,6 +60,8 @@ import java.util.Map;
 @Validated
 @PreAuthorize("hasAnyRole('CUSTOMER','AGENT','MANAGER','ADMIN','SYSTEM')")
 public class ChatSessionController {
+
+    private static final Logger log = LoggerFactory.getLogger(ChatSessionController.class);
 
     private final ChatSessionService sessionService;
     private final AuditLogService auditLogService;
@@ -88,6 +93,7 @@ public class ChatSessionController {
     public ResponseEntity<ChatSessionDto> createSession(
             @CurrentCustomer CustomerContext customer,
             @RequestBody(required = false) CreateSessionRequest request) {
+        log.info("createSession requested customerId={}", customer != null ? customer.getCustomerId() : "anonymous");
 
         Map<String, Object> metadata = WorkflowRequestValidator.validateMetadata(
                 request != null ? request.getMetadata() : Map.of());
@@ -125,6 +131,7 @@ public class ChatSessionController {
     public ResponseEntity<ChatSessionDto> getSession(
             @PathVariable String sessionId,
             @CurrentCustomer CustomerContext customer) {
+        log.info("getSession requested sessionId={} customerId={}", sessionId, customer != null ? customer.getCustomerId() : "anonymous");
 
         String validatedId = IdValidator.requireValidSessionId(sessionId);
         String customerId = customer != null ? customer.getCustomerId() : null;
@@ -157,6 +164,10 @@ public class ChatSessionController {
             @PathVariable String sessionId,
             @Valid @RequestBody SendMessageRequest body,
             @CurrentCustomer CustomerContext customer) {
+        log.info("sendMessage requested sessionId={} customerId={} contentLength={}",
+                sessionId,
+                customer != null ? customer.getCustomerId() : "anonymous",
+                body != null && body.getContent() != null ? body.getContent().length() : 0);
 
         String validatedId = IdValidator.requireValidSessionId(sessionId);
         String sanitizedContent = ChatMessageValidator.validate(body.getContent());
@@ -200,6 +211,7 @@ public class ChatSessionController {
     public ResponseEntity<CloseSessionResponse> closeSession(
             @PathVariable String sessionId,
             @CurrentCustomer CustomerContext customer) {
+        log.info("closeSession requested sessionId={} customerId={}", sessionId, customer != null ? customer.getCustomerId() : "anonymous");
 
         String validatedId = IdValidator.requireValidSessionId(sessionId);
         String customerId = customer != null ? customer.getCustomerId() : null;
@@ -235,6 +247,7 @@ public class ChatSessionController {
     @GetMapping("/{sessionId}/history")
     public ResponseEntity<ChatHistoryResponse> getHistory(
             @PathVariable String sessionId) {
+        log.info("getHistory requested sessionId={}", sessionId);
 
         String validatedId = IdValidator.requireValidSessionId(sessionId);
 

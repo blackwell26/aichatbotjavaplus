@@ -28,12 +28,17 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/v1/admin/knowledge")
 @Validated
 @PreAuthorize("hasRole('ADMIN')")
 @ConditionalOnBean(KnowledgeDocumentRepository.class)
 public class AdminKnowledgeController {
+
+    private static final Logger log = LoggerFactory.getLogger(AdminKnowledgeController.class);
 
     private final KnowledgeIngestionService ingestionService;
     private final AuditLogService auditLogService;
@@ -46,11 +51,13 @@ public class AdminKnowledgeController {
 
     @GetMapping("/documents")
     public ResponseEntity<List<KnowledgeDocumentSummary>> listDocuments() {
+        log.info("list knowledge documents requested");
         return ResponseEntity.ok(ingestionService.listDocuments());
     }
 
     @GetMapping("/documents/{documentId}")
     public ResponseEntity<KnowledgeDocumentDetail> getDocument(@PathVariable Long documentId) {
+        log.info("get knowledge document requested documentId={}", documentId);
         return ResponseEntity.ok(ingestionService.getDocument(requirePositiveId(documentId, "documentId")));
     }
 
@@ -59,6 +66,10 @@ public class AdminKnowledgeController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("sourceType") KnowledgeSourceType sourceType,
             @CurrentCustomer CustomerContext customer) {
+        log.info("upload knowledge document requested fileName={} sourceType={} actor={}",
+                file != null ? file.getOriginalFilename() : null,
+                sourceType,
+                actor(customer));
 
         KnowledgeIngestionResult result = ingestionService.upload(file, sourceType, actor(customer));
         auditLogService.logSensitiveAction(
@@ -78,6 +89,10 @@ public class AdminKnowledgeController {
             @CurrentCustomer CustomerContext customer) {
 
         Long validatedDocumentId = requirePositiveId(documentId, "documentId");
+        log.info("replace knowledge document requested documentId={} fileName={} actor={}",
+                validatedDocumentId,
+                file != null ? file.getOriginalFilename() : null,
+                actor(customer));
         KnowledgeIngestionResult result = ingestionService.replace(validatedDocumentId, file, actor(customer));
         auditLogService.logSensitiveAction(
                 customer,
@@ -91,6 +106,7 @@ public class AdminKnowledgeController {
 
     @GetMapping("/ingestion/{jobId}")
     public ResponseEntity<KnowledgeIngestionJob> getIngestionJob(@PathVariable String jobId) {
+        log.info("get knowledge ingestion job requested jobId={}", jobId);
         String validatedJobId = IdValidator.requireValidSessionId(jobId);
         return ResponseEntity.ok(ingestionService.getJob(validatedJobId));
     }

@@ -18,11 +18,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/v1/orders")
 @Validated
 @PreAuthorize("hasAnyRole('CUSTOMER','AGENT','MANAGER','ADMIN','SYSTEM')")
 public class OrderController {
+
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
     private final OrderClient orderClient;
     private final ShippingClient shippingClient;
@@ -39,6 +44,7 @@ public class OrderController {
     @GetMapping
     public List<OrderSummary> listOrders(@CurrentCustomer CustomerContext customer) {
         requireCustomer(customer);
+        log.info("listOrders requested customerId={}", customer.getCustomerId());
         return orderClient.getOrderHistory(customer.getCustomerId());
     }
 
@@ -47,6 +53,7 @@ public class OrderController {
                                 @CurrentCustomer CustomerContext customer) {
         String validatedOrderNumber = IdValidator.requireValidOrderNumber(orderNumber);
         requireCustomer(customer);
+        log.info("getOrder requested orderNumber={} customerId={}", validatedOrderNumber, customer.getCustomerId());
         OrderStatus order = orderClient.getOrderStatus(validatedOrderNumber);
         ownershipValidator.verifyOrderAccess(customer, customerIdFromOrder(order));
         return order;
@@ -57,6 +64,7 @@ public class OrderController {
                                     @CurrentCustomer CustomerContext customer) {
         String validatedOrderNumber = IdValidator.requireValidOrderNumber(orderNumber);
         requireCustomer(customer);
+        log.info("getTracking requested orderNumber={} customerId={}", validatedOrderNumber, customer.getCustomerId());
         OrderStatus order = orderClient.getOrderStatus(validatedOrderNumber);
         ownershipValidator.verifyOrderAccess(customer, customerIdFromOrder(order));
         TrackingInfo tracking = shippingClient.getTracking(order.trackingNumber());

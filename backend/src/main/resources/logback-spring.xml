@@ -11,9 +11,11 @@
         </encoder>
     </appender>
 
-    <root level="${LOG_LEVEL}">
-        <appender-ref ref="CONSOLE"/>
-    </root>
+    <springProfile name="test">
+        <root level="${LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 
     <springProfile name="!test">
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -28,6 +30,7 @@
             </rollingPolicy>
         </appender>
         <root level="${LOG_LEVEL}">
+            <appender-ref ref="CONSOLE"/>
             <appender-ref ref="FILE"/>
         </root>
     </springProfile>

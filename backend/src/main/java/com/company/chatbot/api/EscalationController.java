@@ -20,12 +20,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/v1/chat/sessions")
 @Validated
 @PreAuthorize("hasAnyRole('CUSTOMER','AGENT','MANAGER','ADMIN','SYSTEM')")
 @ConditionalOnBean(EscalationWorkflowService.class)
 public class EscalationController {
+
+    private static final Logger log = LoggerFactory.getLogger(EscalationController.class);
 
     private final EscalationWorkflowService escalationWorkflowService;
 
@@ -37,6 +42,8 @@ public class EscalationController {
     public ResponseEntity<Escalation> escalate(@PathVariable String sessionId,
                                                @Valid @RequestBody EscalateRequest request,
                                                @CurrentCustomer CustomerContext customer) {
+        log.info("escalate requested sessionId={} trigger={} confidenceLevel={} customerId={}",
+                sessionId, request.trigger(), request.confidenceLevel(), customer != null ? customer.getCustomerId() : "anonymous");
         Escalation escalation = escalationWorkflowService.createEscalation(
                 sessionId,
                 new EscalationRequest(request.trigger(), request.confidenceLevel(), request.confidenceScore(),
