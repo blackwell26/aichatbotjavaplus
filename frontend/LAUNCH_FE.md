@@ -46,7 +46,11 @@ Use port binding on that specific host IP when you run the container:
 ```powershell
 cd frontend
 docker build -t aichatbot-frontend .
-docker run --rm --name aichatbot-frontend -p 192.168.1.87:8080:8080 aichatbot-frontend
+#docker run --rm --name aichatbot-frontend -p 192.168.1.87:8080:8080 aichatbot-frontend
+docker run --rm --name aichatbot-frontend -p 192.168.1.87:4200:8080 aichatbot-frontend
+
+npm run start:dev -- --host 0.0.0.0 --port 4200
+
 ```
 
 Then open:
