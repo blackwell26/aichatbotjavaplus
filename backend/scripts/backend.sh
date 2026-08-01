@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$ROOT_DIR/.env"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_DIR="$(cd "$BACKEND_DIR/.." && pwd)"
+ENV_FILE="$REPO_DIR/.env"
 IMAGE_NAME="aichatbot_backend"
 CONTAINER_NAME="aichatbot_backend"
 NETWORK_NAME="${COMPOSE_PROJECT_NAME:-aichatbotjava}_network"
@@ -27,7 +29,7 @@ require_docker() {
 ensure_image() {
   if ! docker image inspect "$IMAGE_NAME" >/dev/null 2>&1; then
     echo "Docker image '$IMAGE_NAME' not found. Build it first with:" >&2
-    echo "  $ROOT_DIR/backend.sh build" >&2
+    echo "  $0 build" >&2
     exit 1
   fi
 }
@@ -74,7 +76,7 @@ start_backend() {
 
 build_backend() {
   require_docker
-  docker build -t "$IMAGE_NAME" "$ROOT_DIR/backend"
+  docker build -t "$IMAGE_NAME" "$BACKEND_DIR"
 }
 
 stop_backend() {
@@ -97,16 +99,29 @@ status_backend() {
   docker ps -a --filter "name=^/${CONTAINER_NAME}$"
 }
 
+start_dependencies() {
+  require_docker
+  if [[ ! -f "$REPO_DIR/docker-compose.yml" ]]; then
+    echo "docker-compose.yml not found at $REPO_DIR/docker-compose.yml" >&2
+    exit 1
+  fi
+
+  docker compose -f "$REPO_DIR/docker-compose.yml" up -d postgres mongo redis zookeeper kafka ollama
+}
+
 usage() {
   cat <<EOF
-Usage: $0 {build|start|stop|logs|status}
+Usage: $0 {build|start|stop|restart|logs|status|deps|all}
 
 Commands:
   build   Build the backend image
   start   Run the backend container
   stop    Stop and remove the backend container
+  restart Stop then start the backend container
   logs    Follow backend logs
   status  Show container status
+  deps    Start the Docker Compose dependency services
+  all     Start deps, build the image, then start the backend
 EOF
 }
 
@@ -114,8 +129,11 @@ case "${1:-}" in
   build) build_backend ;;
   start) start_backend ;;
   stop) stop_backend ;;
+  restart) stop_backend && start_backend ;;
   logs) logs_backend ;;
   status) status_backend ;;
+  deps) start_dependencies ;;
+  all) start_dependencies && build_backend && start_backend ;;
   *)
     usage
     exit 1
