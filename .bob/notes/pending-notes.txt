@@ -1,0 +1,4 @@
+{"id":"d73c2bbb-c9ea-4e80-942c-2406b481d5c9","ts":"2026-08-02T04:42:58.712Z","path":"/home/huy/dev/chatbots/java/aichatbotjavaplus/.env","version":"1.0.0","taskID":"f4ae5124-efb7-4fb5-97b8-c1552d34a474"}
+{"id":"3441bc95-3098-4084-8180-f1db4099ccdf","ts":"2026-08-02T05:31:34.702Z","path":"/home/huy/dev/chatbots/java/aichatbotjavaplus/backend/src/main/java/com/company/chatbot/config/SecurityConfig.java","version":"1.0.0","taskID":"f4ae5124-efb7-4fb5-97b8-c1552d34a474"}
+{"id":"f9d91c7d-a5d5-40cf-a44f-7a22b037a0ac","ts":"2026-08-02T05:35:54.761Z","path":"/home/huy/dev/chatbots/java/aichatbotjavaplus/docker-compose.yml","version":"1.0.0","taskID":"f4ae5124-efb7-4fb5-97b8-c1552d34a474"}
+{"id":"5218299a-0f87-4ec1-8b2e-c10dda68f580","ts":"2026-08-02T05:35:59.479Z","path":"/home/huy/dev/chatbots/java/aichatbotjavaplus/.env","version":"1.0.0","taskID":"f4ae5124-efb7-4fb5-97b8-c1552d34a474"}
